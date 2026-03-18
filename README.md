@@ -71,8 +71,8 @@ Good luck and happy coding!
 From the `frontend-engineer` directory:
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 The frontend dev server will start on `http://localhost:5173` by default.
