@@ -8,10 +8,12 @@ import type { Message } from './types';
 
 type UseChatShellResult = {
   authorError: string | null;
+  authorInputRef: RefObject<HTMLInputElement | null>;
   authorPromptVisible: boolean;
   authorValue: string;
   composerError: string | null;
   composerInputDisabled: boolean;
+  composerInputRef: RefObject<HTMLInputElement | null>;
   composerPlaceholder: string;
   composerSubmitDisabled: boolean;
   composerSubmitLabel: string;
@@ -37,9 +39,12 @@ export const useChatShell = (): UseChatShellResult => {
     clearError: clearSendError,
   } = useCreateMessage();
   const { author, hasAuthor, saveAuthor } = useLocalAuthor();
+  const authorInputRef = useRef<HTMLInputElement>(null);
+  const composerInputRef = useRef<HTMLInputElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const hasScrolledToLatestMessage = useRef(false);
   const previousMessageCount = useRef(0);
+  const previousAuthorPromptVisible = useRef(!hasAuthor);
   const [authorDraft, setAuthorDraft] = useState(author);
   const [authorError, setAuthorError] = useState<string | null>(null);
   const [composerValue, setComposerValue] = useState('');
@@ -68,6 +73,20 @@ export const useChatShell = (): UseChatShellResult => {
     hasScrolledToLatestMessage.current = true;
     previousMessageCount.current = messageItems.length;
   }, [error, loading, messageItems.length]);
+
+  useEffect(() => {
+    if (!hasAuthor) {
+      authorInputRef.current?.focus();
+      previousAuthorPromptVisible.current = true;
+      return;
+    }
+
+    if (previousAuthorPromptVisible.current) {
+      composerInputRef.current?.focus();
+    }
+
+    previousAuthorPromptVisible.current = false;
+  }, [hasAuthor]);
 
   const onAuthorSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -98,6 +117,7 @@ export const useChatShell = (): UseChatShellResult => {
 
       setVisibleMessages((currentMessages) => [...currentMessages, createdMessage]);
       setComposerValue('');
+      composerInputRef.current?.focus();
     } catch (caughtError) {
       if (caughtError instanceof DOMException && caughtError.name === 'AbortError') {
         return;
@@ -107,10 +127,12 @@ export const useChatShell = (): UseChatShellResult => {
 
   return {
     authorError,
+    authorInputRef,
     authorPromptVisible: !hasAuthor,
     authorValue: authorDraft,
     composerError: sendError?.message ?? null,
     composerInputDisabled: !hasAuthor || sending,
+    composerInputRef,
     composerPlaceholder: hasAuthor ? 'Message' : 'Choose your display name to join the chat',
     composerSubmitDisabled: !hasAuthor || loading || sending || trimmedComposerValue.length === 0,
     composerSubmitLabel: sending ? 'Sending...' : 'Send',

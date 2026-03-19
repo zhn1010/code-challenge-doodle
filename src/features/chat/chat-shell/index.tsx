@@ -1,18 +1,18 @@
 import { ChatIdentityPrompt } from '../../../components/chat-identity-prompt';
-import { ChatShellState } from '../../../components/chat-shell-state';
 import { Composer } from '../../../components/composer';
-import { MessageList } from '../../../components/message-list';
-import { MessageListSkeleton } from '../../../components/message-list-skeleton';
+import { ChatShellContent } from '../chat-shell-content';
 import { useChatShell } from '../use-chat-shell';
 import styles from './style.module.css';
 
 export function ChatShell() {
   const {
     authorError,
+    authorInputRef,
     authorPromptVisible,
     authorValue,
     composerError,
     composerInputDisabled,
+    composerInputRef,
     composerPlaceholder,
     composerSubmitDisabled,
     composerSubmitLabel,
@@ -29,44 +29,25 @@ export function ChatShell() {
     onComposerSubmit,
   } = useChatShell();
 
-  const content = (() => {
-    if (loading) {
-      return <MessageListSkeleton />;
-    }
-
-    if (loadErrorMessage) {
-      return (
-        <ChatShellState title="Could not load messages" body={loadErrorMessage} tone="error" />
-      );
-    }
-
-    if (messageItems.length === 0) {
-      return (
-        <ChatShellState
-          title="No messages yet"
-          body="Once the conversation starts, messages will appear here."
-        />
-      );
-    }
-
-    return <MessageList messages={messageItems} containerRef={messageListRef} />;
-  })();
-
   return (
     <section
       className={styles.viewport}
       aria-busy={loading || sending || undefined}
       aria-label="Chat conversation"
     >
-      {loadingAnnouncement ? (
-        <p className={styles.visuallyHidden} role="status" aria-atomic="true">
-          {loadingAnnouncement}
-        </p>
-      ) : null}
-      {content}
+      <p className={styles.visuallyHidden} role="status" aria-atomic="true">
+        {loadingAnnouncement ?? ''}
+      </p>
+      <ChatShellContent
+        loadErrorMessage={loadErrorMessage}
+        loading={loading}
+        messageItems={messageItems}
+        messageListRef={messageListRef}
+      />
       {authorPromptVisible ? (
         <ChatIdentityPrompt
           error={authorError}
+          inputRef={authorInputRef}
           value={authorValue}
           onChange={onAuthorChange}
           onSubmit={onAuthorSubmit}
@@ -80,6 +61,7 @@ export function ChatShell() {
       <Composer
         describedBy={composerError ? 'composer-error' : undefined}
         inputDisabled={composerInputDisabled}
+        inputRef={composerInputRef}
         invalid={Boolean(composerError)}
         placeholder={composerPlaceholder}
         submitDisabled={composerSubmitDisabled}

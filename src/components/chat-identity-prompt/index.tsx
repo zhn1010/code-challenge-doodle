@@ -1,15 +1,22 @@
-import type { FormEvent } from 'react';
+import type { FormEvent, Ref } from 'react';
 
 import styles from './style.module.css';
 
 type ChatIdentityPromptProps = {
   error?: string | null;
+  inputRef?: Ref<HTMLInputElement>;
   value: string;
   onChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 };
 
-export function ChatIdentityPrompt({ error, value, onChange, onSubmit }: ChatIdentityPromptProps) {
+export function ChatIdentityPrompt({
+  error,
+  inputRef,
+  value,
+  onChange,
+  onSubmit,
+}: ChatIdentityPromptProps) {
   return (
     <div
       className={styles.overlay}
@@ -34,6 +41,7 @@ export function ChatIdentityPrompt({ error, value, onChange, onSubmit }: ChatIde
           aria-describedby={error ? 'chat-author-error' : 'chat-author-description'}
           aria-invalid={Boolean(error) || undefined}
           className={styles.input}
+          ref={inputRef}
           type="text"
           autoComplete="name"
           maxLength={50}

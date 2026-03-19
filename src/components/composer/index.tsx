@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import type { FormEvent, Ref } from 'react';
 
 import styles from './style.module.css';
 
@@ -6,6 +6,7 @@ type ComposerProps = {
   describedBy?: string;
   disabled?: boolean;
   inputDisabled?: boolean;
+  inputRef?: Ref<HTMLInputElement>;
   invalid?: boolean;
   placeholder?: string;
   submitDisabled?: boolean;
@@ -19,6 +20,7 @@ export function Composer({
   describedBy,
   disabled = false,
   inputDisabled,
+  inputRef,
   invalid = false,
   placeholder = 'Message',
   submitDisabled,
@@ -40,6 +42,7 @@ export function Composer({
         aria-describedby={describedBy}
         aria-invalid={invalid || undefined}
         className={styles.input}
+        ref={inputRef}
         type="text"
         placeholder={placeholder}
         value={value}
