@@ -1,5 +1,6 @@
 /* Message viewport with the repeated background artwork. */
 .viewport {
+  position: relative;
   display: flex;
   flex: 1;
   min-height: 0;

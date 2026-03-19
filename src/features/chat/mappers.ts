@@ -1,4 +1,5 @@
 import type { ChatMessageItem, Message } from './types';
+import { areAuthorsSame } from './identity';
 
 const messageTimestampFormatter = new Intl.DateTimeFormat('en-GB', {
   day: '2-digit',
@@ -15,8 +16,12 @@ export const formatMessageTimestamp = (createdAt: string): string => {
 
 export const mapMessageToChatMessageItem = (
   message: Message,
-  variant: ChatMessageItem['variant'] = 'incoming',
+  localAuthor?: string,
 ): ChatMessageItem => {
+  const variant: ChatMessageItem['variant'] = areAuthorsSame(message.author, localAuthor)
+    ? 'outgoing'
+    : 'incoming';
+
   return {
     id: message._id,
     author: variant === 'outgoing' ? undefined : message.author,

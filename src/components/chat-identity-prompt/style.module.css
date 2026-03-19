@@ -1,0 +1,74 @@
+/* Overlay prompt that blocks the chat until a local author is chosen. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+  background-color: rgb(247 247 247 / 88%);
+  backdrop-filter: blur(4px);
+}
+
+/* Compact card so the identity step stays visually lightweight. */
+.card {
+  display: grid;
+  gap: var(--space-4);
+  width: min(100%, 28rem);
+  padding: var(--space-6);
+  border-radius: var(--radius-card);
+  background-color: #fffef8;
+  box-shadow: 0 1.5rem 3rem rgb(15 35 95 / 12%);
+}
+
+.title {
+  margin: 0;
+  color: #12305f;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.body {
+  margin: 0;
+  color: #5d6a78;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.label {
+  color: #12305f;
+  font-weight: 600;
+}
+
+.input {
+  min-height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid rgb(18 48 95 / 16%);
+  border-radius: var(--radius-control);
+  font: inherit;
+}
+
+.error {
+  margin: 0;
+  color: #ae2e24;
+  font-size: 0.9375rem;
+}
+
+.button {
+  min-height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius-control);
+  background-color: #1570ef;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+}
+
+@media (max-width: 48rem) {
+  .overlay {
+    padding: var(--space-4);
+  }
+
+  .card {
+    padding: var(--space-5);
+  }
+}

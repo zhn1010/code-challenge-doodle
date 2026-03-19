@@ -1,18 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 
+import { ChatIdentityPrompt } from '../../../components/chat-identity-prompt';
 import { ChatShellState } from '../../../components/chat-shell-state';
 import { Composer } from '../../../components/composer';
 import { MessageList } from '../../../components/message-list';
 import { MessageListSkeleton } from '../../../components/message-list-skeleton';
 import { useMessages } from '../hooks';
+import { useLocalAuthor } from '../identity';
 import { mapMessageToChatMessageItem } from '../mappers';
 import styles from './style.module.css';
 
 export function ChatShell() {
   const { messages, loading, error } = useMessages();
+  const { author, hasAuthor, saveAuthor } = useLocalAuthor();
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const hasScrolledToLatestMessage = useRef(false);
-  const messageItems = messages.map((message) => mapMessageToChatMessageItem(message));
+  const [authorDraft, setAuthorDraft] = useState(author);
+  const [authorError, setAuthorError] = useState<string | null>(null);
+  const messageItems = messages.map((message) => mapMessageToChatMessageItem(message, author));
 
   useEffect(() => {
     if (loading || error || messageItems.length === 0 || hasScrolledToLatestMessage.current) {
@@ -24,6 +30,20 @@ export function ChatShell() {
       hasScrolledToLatestMessage.current = true;
     }
   }, [error, loading, messageItems.length]);
+
+  const handleAuthorSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const result = saveAuthor(authorDraft);
+
+    if (!result.ok) {
+      setAuthorError(result.error);
+      return;
+    }
+
+    setAuthorDraft(result.author);
+    setAuthorError(null);
+  };
 
   const content = (() => {
     if (loading) {
@@ -49,7 +69,25 @@ export function ChatShell() {
   return (
     <section className={styles.viewport} aria-label="Chat layout preview">
       {content}
-      <Composer disabled value="" />
+      {!hasAuthor ? (
+        <ChatIdentityPrompt
+          error={authorError}
+          value={authorDraft}
+          onChange={(value) => {
+            setAuthorDraft(value);
+
+            if (authorError) {
+              setAuthorError(null);
+            }
+          }}
+          onSubmit={handleAuthorSubmit}
+        />
+      ) : null}
+      <Composer
+        disabled
+        placeholder={hasAuthor ? 'Message' : 'Choose your display name to join the chat'}
+        value=""
+      />
     </section>
   );
 }
