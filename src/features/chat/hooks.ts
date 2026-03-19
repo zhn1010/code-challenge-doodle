@@ -9,6 +9,10 @@ type UseMessagesResult = {
   error: NormalizedApiError | null;
 };
 
+type UseMessagesOptions = {
+  enabled?: boolean;
+};
+
 type UseCreateMessageResult = {
   createMessage: (input: CreateMessageInput) => Promise<Message>;
   sending: boolean;
@@ -28,15 +32,26 @@ const isAbortError = (error: unknown): boolean => {
   return error instanceof DOMException && error.name === 'AbortError';
 };
 
-export const useMessages = (params?: GetMessagesParams): UseMessagesResult => {
+export const useMessages = (
+  params?: GetMessagesParams,
+  options: UseMessagesOptions = {},
+): UseMessagesResult => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(options.enabled ?? true);
   const [error, setError] = useState<NormalizedApiError | null>(null);
+  const enabled = options.enabled ?? true;
   const limit = params?.limit;
   const after = params?.after;
   const before = params?.before;
 
   useEffect(() => {
+    if (!enabled) {
+      setLoading(false);
+      setError(null);
+      setMessages([]);
+      return;
+    }
+
     const abortController = new AbortController();
 
     const loadMessages = async () => {
@@ -76,7 +91,7 @@ export const useMessages = (params?: GetMessagesParams): UseMessagesResult => {
     return () => {
       abortController.abort();
     };
-  }, [after, before, limit]);
+  }, [after, before, enabled, limit]);
 
   return {
     messages,

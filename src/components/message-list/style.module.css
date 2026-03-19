@@ -7,24 +7,32 @@
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   /* Bottom scroll padding keeps the last message clear of the sticky composer. */
-  scroll-padding-bottom: calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));
-  padding: var(--space-8) var(--page-gutter)
-    calc(var(--composer-height) + var(--space-8) + var(--safe-area-bottom));
+  scroll-padding-bottom: calc(var(--composer-height) + var(--space-4) + var(--safe-area-bottom));
+  padding: var(--space-6) var(--page-gutter) var(--space-4);
+}
+
+/* Center the conversation inside the 640px content column from the notes. */
+.content {
+  display: flex;
+  width: min(100%, var(--chat-content-max-width));
+  min-height: 100%;
+  margin-inline: auto;
 }
 
 /* Keep messages anchored toward the bottom like a real chat thread. */
 .stack {
   display: flex;
+  flex: 1;
+  min-width: 0;
   min-height: 100%;
   flex-direction: column;
   justify-content: flex-end;
-  gap: var(--space-4);
+  gap: var(--space-2);
 }
 
-@media (max-width: 48rem) {
-  /* Tighten side gutters and bottom spacing for mobile. */
+@media (--breakpoint-mobile) {
+  /* Keep the notes-based 24px top rhythm while narrowing the side gutters to 16px on mobile. */
   .messages {
-    padding: var(--space-6) var(--space-3)
-      calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));
+    padding: var(--space-6) var(--page-gutter) var(--space-2);
   }
 }

@@ -31,7 +31,7 @@
   border: 0;
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   /* Scale the background down on narrow screens so the pattern stays subtle. */
   .viewport {
     background-size: 28rem auto;

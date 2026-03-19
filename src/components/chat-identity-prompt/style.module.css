@@ -63,7 +63,7 @@
   font-weight: 600;
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   .overlay {
     padding: var(--space-4);
   }

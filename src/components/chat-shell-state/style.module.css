@@ -37,7 +37,7 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   .state {
     padding: var(--space-6) var(--space-3)
       calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));

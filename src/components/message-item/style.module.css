@@ -18,6 +18,10 @@
 .outgoing {
   align-self: flex-end;
   background: var(--color-surface-outgoing);
+  padding-bottom: 0;
+  padding-right: var(--space-2);
+  margin-top: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .author,
@@ -29,16 +33,16 @@
 /* Author and metadata use a lighter treatment than the message body. */
 .author {
   color: var(--color-text-muted);
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 0.9rem;
   line-height: 1;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-1);
 }
 
 .body {
   color: var(--color-text-strong);
-  font-size: 1.125rem;
+  font-size: 1rem;
   line-height: 1.45;
+  /* font-weight: 500; */
   /* Preserve line breaks from the API while still breaking long unspaced content safely. */
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -47,31 +51,24 @@
 .meta {
   color: var(--color-text-muted);
   font-size: 0.9rem;
-  margin-top: var(--space-3);
+  margin-top: var(--space-1);
 }
 
 .outgoing .meta {
   text-align: right;
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   /* Slightly compress the cards for smaller screens. */
   .message {
     padding: var(--space-4);
   }
-
-  .author {
-    font-size: 1.25rem;
+  .outgoing {
+    padding-bottom: 0;
+    /* padding-right: var(--space-2); */
   }
 
   .body {
     font-size: 1rem;
-  }
-}
-
-@media (min-width: 64rem) {
-  /* Let desktop outgoing messages grow wider without taking the full row. */
-  .outgoing {
-    width: min(34rem, 58%);
   }
 }

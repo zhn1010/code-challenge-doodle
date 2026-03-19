@@ -1,10 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;700&display=swap');
+
 /* Shared design tokens and baseline document styles. */
 :root {
   --color-text: #4b5563;
   --color-text-strong: #3f4957;
   --color-text-muted: #b8c1cd;
-  --color-surface: rgba(255, 255, 255, 0.96);
-  --color-surface-outgoing: #fff1ae;
+  --color-surface: rgba(255, 255, 255);
+  --color-surface-outgoing: #fcf6c5;
   --color-surface-composer: #2e94d7;
   --color-action: #ff836b;
   --color-action-text: #fff8f4;
@@ -18,20 +20,23 @@
   --space-8: 2rem;
   --space-10: 2.5rem;
   /* Shared shape tokens for cards and interactive controls. */
-  --radius-card: var(--space-2);
+  --radius-card: 0.25rem;
   --radius-control: 0.4rem;
-  /* Shared control heights for the static composer shell. */
-  --composer-height: 6rem;
-  --control-height: 3.75rem;
-  --control-height-mobile: 3.5rem;
-  /* Responsive side gutter: never smaller than 1rem, scales with viewport width, and caps at 7rem. */
-  --page-gutter: clamp(var(--space-4), 5vw, 7rem);
+  /* The desktop @2x mockup puts the blue composer bar at about 64px tall. */
+  --composer-height: 4rem;
+  --control-height: 3rem;
+  --control-height-mobile: 3rem;
+  /* The notes overlays point to a 24px desktop side rhythm and a tighter 16px mobile gutter. */
+  --page-gutter: 1.5rem;
   /* Safe-area inset lets the sticky composer sit clear of mobile device cutouts. */
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-  --message-max-width: min(40rem, calc(100% - 7rem));
+  /* The mockup reads more like a centered 640px content column than a viewport-edge gutter. */
+  --chat-content-max-width: calc(40rem - 3rem); /* 640px - 24px - 2px */
+  /* Per your reading of the notes, all message bubbles share the same max width. */
+  --message-max-width: min(26.25rem, 100%); /* 420px */
   color: var(--color-text);
   background: #eef3f7;
-  font-family: 'Avenir Next', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Fira Sans', 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   text-rendering: optimizeLegibility;
@@ -63,10 +68,11 @@ textarea {
   font: inherit;
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   /* Narrow-screen sizing tokens consumed by the shell components. */
   :root {
-    --composer-height: 5.5rem;
-    --message-max-width: min(15rem, calc(100% - 2.5rem));
+    --composer-height: 4.25rem;
+    --page-gutter: 1rem;
+    --message-max-width: min(15rem, 100%); /* 240px */
   }
 }

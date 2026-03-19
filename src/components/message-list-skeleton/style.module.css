@@ -5,8 +5,16 @@
     calc(var(--composer-height) + var(--space-8) + var(--safe-area-bottom));
 }
 
+.content {
+  display: flex;
+  width: min(100%, var(--chat-content-max-width));
+  min-height: 100%;
+  margin-inline: auto;
+}
+
 .skeletonStack {
   display: flex;
+  flex: 1;
   min-height: 100%;
   flex-direction: column;
   justify-content: flex-end;
@@ -76,7 +84,7 @@
   }
 }
 
-@media (max-width: 48rem) {
+@media (--breakpoint-mobile) {
   .skeleton {
     padding: var(--space-6) var(--space-3)
       calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));

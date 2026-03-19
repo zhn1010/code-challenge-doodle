@@ -34,25 +34,27 @@ export function Composer({
 
   return (
     <form className={styles.composer} aria-label="Message composer" onSubmit={onSubmit}>
-      <label className={styles.label} htmlFor="message">
-        Message
-      </label>
-      <input
-        id="message"
-        aria-describedby={describedBy}
-        aria-invalid={invalid || undefined}
-        className={styles.input}
-        ref={inputRef}
-        type="text"
-        placeholder={placeholder}
-        value={value}
-        onChange={(event) => onChange?.(event.target.value)}
-        disabled={isInputDisabled}
-        readOnly={onChange === undefined}
-      />
-      <button className={styles.send} type="submit" disabled={isSubmitDisabled}>
-        {submitLabel}
-      </button>
+      <div className={styles.inner}>
+        <label className={styles.label} htmlFor="message">
+          Message
+        </label>
+        <input
+          id="message"
+          aria-describedby={describedBy}
+          aria-invalid={invalid || undefined}
+          className={styles.input}
+          ref={inputRef}
+          type="text"
+          placeholder={placeholder}
+          value={value}
+          onChange={(event) => onChange?.(event.target.value)}
+          disabled={isInputDisabled}
+          readOnly={onChange === undefined}
+        />
+        <button className={styles.send} type="submit" disabled={isSubmitDisabled}>
+          {submitLabel}
+        </button>
+      </div>
     </form>
   );
 }

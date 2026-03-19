@@ -12,10 +12,12 @@ type MessageListProps = {
 export function MessageList({ messages, containerRef }: MessageListProps) {
   return (
     <div ref={containerRef} className={styles.messages}>
-      <div className={styles.stack}>
-        {messages.map((message) => (
-          <MessageItem key={message.id} message={message} />
-        ))}
+      <div className={styles.content}>
+        <div className={styles.stack}>
+          {messages.map((message) => (
+            <MessageItem key={message.id} message={message} />
+          ))}
+        </div>
       </div>
     </div>
   );

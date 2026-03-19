@@ -23,28 +23,30 @@ const lineWidthClassNames: Record<SkeletonLineWidth, string> = {
 export function MessageListSkeleton() {
   return (
     <div className={styles.skeleton} aria-hidden="true">
-      <div className={styles.skeletonStack}>
-        {skeletonItems.map((item) => {
-          const bubbleClassName =
-            item.variant === 'outgoing'
-              ? `${styles.skeletonBubble} ${styles.skeletonBubbleOutgoing}`
-              : styles.skeletonBubble;
+      <div className={styles.content}>
+        <div className={styles.skeletonStack}>
+          {skeletonItems.map((item) => {
+            const bubbleClassName =
+              item.variant === 'outgoing'
+                ? `${styles.skeletonBubble} ${styles.skeletonBubbleOutgoing}`
+                : styles.skeletonBubble;
 
-          return (
-            <div key={item.id} className={bubbleClassName}>
-              {item.variant === 'incoming' ? (
-                <div className={`${styles.skeletonLine} ${styles.skeletonAuthor}`} />
-              ) : null}
-              {item.lines.map((line) => (
-                <div
-                  key={`${item.id}-${line}`}
-                  className={`${styles.skeletonLine} ${lineWidthClassNames[line]}`}
-                />
-              ))}
-              <div className={`${styles.skeletonLine} ${styles.skeletonMeta}`} />
-            </div>
-          );
-        })}
+            return (
+              <div key={item.id} className={bubbleClassName}>
+                {item.variant === 'incoming' ? (
+                  <div className={`${styles.skeletonLine} ${styles.skeletonAuthor}`} />
+                ) : null}
+                {item.lines.map((line) => (
+                  <div
+                    key={`${item.id}-${line}`}
+                    className={`${styles.skeletonLine} ${lineWidthClassNames[line]}`}
+                  />
+                ))}
+                <div className={`${styles.skeletonLine} ${styles.skeletonMeta}`} />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
