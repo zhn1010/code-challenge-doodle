@@ -1,0 +1,86 @@
+.skeleton {
+  flex: 1;
+  overflow: hidden;
+  padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
+}
+
+.skeletonStack {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.skeletonBubble {
+  max-width: var(--message-max-width);
+  border: 1px solid rgba(214, 220, 228, 0.8);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 var(--space-2) 1.5rem rgba(104, 120, 143, 0.1);
+  padding: var(--space-4) var(--space-5);
+}
+
+.skeletonBubbleOutgoing {
+  align-self: flex-end;
+  background: rgba(255, 241, 174, 0.72);
+}
+
+.skeletonLine {
+  height: 0.875rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(224, 229, 236, 0.9) 0%,
+    rgba(244, 247, 250, 0.95) 50%,
+    rgba(224, 229, 236, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s linear infinite;
+}
+
+.skeletonAuthor {
+  width: 7rem;
+  height: 1rem;
+  margin-bottom: var(--space-3);
+}
+
+.skeletonLineWide {
+  width: 100%;
+}
+
+.skeletonLineMedium {
+  width: 72%;
+  margin-top: var(--space-3);
+}
+
+.skeletonLineShort {
+  width: 48%;
+  margin-top: var(--space-3);
+}
+
+.skeletonMeta {
+  width: 6rem;
+  margin-top: var(--space-3);
+  margin-left: auto;
+}
+
+@keyframes skeletonShimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 48rem) {
+  .skeleton {
+    padding: var(--space-6) var(--space-3) calc(var(--composer-height) + var(--space-6));
+  }
+
+  .skeletonBubble {
+    padding: var(--space-4);
+  }
+}

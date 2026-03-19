@@ -1,0 +1,46 @@
+.state {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
+}
+
+.stateCard {
+  width: min(100%, 30rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 var(--space-2) 1.5rem rgba(104, 120, 143, 0.12);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.stateCardError {
+  border-color: rgba(220, 38, 38, 0.28);
+}
+
+.stateTitle,
+.stateBody {
+  margin: 0;
+}
+
+.stateTitle {
+  color: var(--color-text-strong);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.stateBody {
+  color: var(--color-text);
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 48rem) {
+  .state {
+    padding: var(--space-6) var(--space-3) calc(var(--composer-height) + var(--space-6));
+  }
+
+  .stateCard {
+    padding: var(--space-5);
+  }
+}

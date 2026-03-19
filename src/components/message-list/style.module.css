@@ -1,6 +1,7 @@
 /* Scroll container above the sticky composer. */
 .messages {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
 }

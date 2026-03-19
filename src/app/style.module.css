@@ -1,5 +1,6 @@
 /* Root application wrapper. */
 .app {
-  min-height: 100vh;
-  min-height: 100dvh;
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
 }
