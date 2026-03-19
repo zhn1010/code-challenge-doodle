@@ -1,0 +1,77 @@
+/* Sticky composer bar pinned to the bottom of the shell. */
+.composer {
+  position: sticky;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--composer-height);
+  padding: var(--space-4) var(--page-gutter);
+  background: var(--color-surface-composer);
+  box-shadow: 0 calc(var(--space-2) * -1) var(--space-6) rgba(37, 99, 155, 0.2);
+}
+
+/* Visually hidden label keeps the input accessible without changing the mockup. */
+.label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Placeholder input shell for the static layout stage. */
+.input {
+  min-width: 0;
+  height: var(--control-height);
+  border: 1px solid rgba(92, 117, 146, 0.35);
+  border-radius: var(--radius-control);
+  background: rgba(255, 255, 255, 0.97);
+  color: var(--color-text-strong);
+  padding: 0 var(--space-4);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+.input::placeholder {
+  color: #aeb8c5;
+}
+
+/* High-contrast primary action matching the mockup. */
+.send {
+  height: var(--control-height);
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-action);
+  color: var(--color-action-text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0 var(--space-6);
+}
+
+.input:disabled,
+.send:disabled {
+  cursor: not-allowed;
+}
+
+@media (max-width: 48rem) {
+  /* Reduce composer footprint on mobile while preserving tap targets. */
+  .composer {
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+
+  .input,
+  .send {
+    height: var(--control-height-mobile);
+  }
+
+  .send {
+    min-width: 6rem;
+    padding: 0 var(--space-4);
+  }
+}

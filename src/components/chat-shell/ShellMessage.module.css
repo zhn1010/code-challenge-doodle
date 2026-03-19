@@ -1,0 +1,73 @@
+/* Shared message card styles used by both incoming and outgoing previews. */
+.message {
+  max-width: var(--message-max-width);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  box-shadow: 0 var(--space-2) 1.75rem var(--color-shadow);
+  padding: var(--space-4) var(--space-5);
+}
+
+/* Incoming messages stay left-aligned. */
+.incoming {
+  align-self: flex-start;
+}
+
+/* Outgoing messages are right-aligned with the yellow accent surface. */
+.outgoing {
+  align-self: flex-end;
+  background: var(--color-surface-outgoing);
+}
+
+.author,
+.body,
+.meta {
+  margin: 0;
+}
+
+/* Author and metadata use a lighter treatment than the message body. */
+.author {
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: var(--space-3);
+}
+
+.body {
+  color: var(--color-text-strong);
+  font-size: 1.125rem;
+  line-height: 1.45;
+}
+
+.meta {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-top: var(--space-3);
+}
+
+.outgoing .meta {
+  text-align: right;
+}
+
+@media (max-width: 48rem) {
+  /* Slightly compress the cards for smaller screens. */
+  .message {
+    padding: var(--space-4);
+  }
+
+  .author {
+    font-size: 1.25rem;
+  }
+
+  .body {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  /* Let desktop outgoing messages grow wider without taking the full row. */
+  .outgoing {
+    width: min(34rem, 58%);
+  }
+}

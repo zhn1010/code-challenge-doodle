@@ -1,0 +1,22 @@
+/* Scroll container above the sticky composer. */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
+}
+
+/* Keep preview messages anchored toward the bottom like a real chat thread. */
+.stack {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+@media (max-width: 48rem) {
+  /* Tighten side gutters and bottom spacing for mobile. */
+  .messages {
+    padding: var(--space-6) var(--space-3) calc(var(--composer-height) + var(--space-6));
+  }
+}
