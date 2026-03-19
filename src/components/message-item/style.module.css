@@ -1,4 +1,4 @@
-/* Shared message card styles used by both incoming and outgoing previews. */
+/* Shared message card styles used by both incoming and outgoing chat items. */
 .message {
   max-width: var(--message-max-width);
   border: 1px solid var(--color-border);

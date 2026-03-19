@@ -25,7 +25,7 @@
   border: 0;
 }
 
-/* Placeholder input shell for the static layout stage. */
+/* Input shell shared by the static preview and the later interactive version. */
 .input {
   min-width: 0;
   height: var(--control-height);

@@ -1,17 +1,10 @@
-/* Full-height shell that holds the scrolling message area and composer. */
-.shell {
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
 /* Message viewport with the repeated background artwork. */
 .viewport {
   display: flex;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: inherit;
   flex-direction: column;
   background-color: #fbfbfb;
-  background-image: var(--chat-background-image);
+  background-image: url('../../../assets/Body BG.png');
   background-position: center;
   background-size: 40rem auto;
 }

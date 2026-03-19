@@ -5,6 +5,14 @@ export type Message = {
   createdAt: string;
 };
 
+export type ChatMessageItem = {
+  id: string;
+  author?: string;
+  body: string;
+  timestamp: string;
+  variant: 'incoming' | 'outgoing';
+};
+
 export type GetMessagesParams = {
   limit?: number;
   after?: string;

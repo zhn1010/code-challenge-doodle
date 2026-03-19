@@ -1,6 +1,6 @@
-import { ChatShell } from '../components/chat-shell/ChatShell';
+import { ChatShell } from '../components/chat-shell';
 
-import styles from './App.module.css';
+import styles from './style.module.css';
 
 export function App() {
   return (

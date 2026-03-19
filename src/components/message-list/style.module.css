@@ -5,7 +5,7 @@
   padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
 }
 
-/* Keep preview messages anchored toward the bottom like a real chat thread. */
+/* Keep messages anchored toward the bottom like a real chat thread. */
 .stack {
   display: flex;
   min-height: 100%;
