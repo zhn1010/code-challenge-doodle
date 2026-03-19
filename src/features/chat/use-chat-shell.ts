@@ -17,9 +17,11 @@ type UseChatShellResult = {
   composerSubmitLabel: string;
   composerValue: string;
   loadErrorMessage: string | null;
+  loadingAnnouncement: string | null;
   loading: boolean;
   messageItems: ReturnType<typeof mapMessageToChatMessageItem>[];
   messageListRef: RefObject<HTMLDivElement | null>;
+  sending: boolean;
   onAuthorChange: (value: string) => void;
   onAuthorSubmit: (event: FormEvent<HTMLFormElement>) => void;
   onComposerChange: (value: string) => void;
@@ -114,9 +116,11 @@ export const useChatShell = (): UseChatShellResult => {
     composerSubmitLabel: sending ? 'Sending...' : 'Send',
     composerValue,
     loadErrorMessage: error?.message ?? null,
+    loadingAnnouncement: loading ? 'Loading messages.' : sending ? 'Sending message.' : null,
     loading,
     messageItems,
     messageListRef,
+    sending,
     onAuthorChange: (value: string) => {
       setAuthorDraft(value);
 

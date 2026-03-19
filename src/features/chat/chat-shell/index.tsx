@@ -18,9 +18,11 @@ export function ChatShell() {
     composerSubmitLabel,
     composerValue,
     loadErrorMessage,
+    loadingAnnouncement,
     loading,
     messageItems,
     messageListRef,
+    sending,
     onAuthorChange,
     onAuthorSubmit,
     onComposerChange,
@@ -51,7 +53,16 @@ export function ChatShell() {
   })();
 
   return (
-    <section className={styles.viewport} aria-label="Chat layout preview">
+    <section
+      className={styles.viewport}
+      aria-busy={loading || sending || undefined}
+      aria-label="Chat conversation"
+    >
+      {loadingAnnouncement ? (
+        <p className={styles.visuallyHidden} role="status" aria-atomic="true">
+          {loadingAnnouncement}
+        </p>
+      ) : null}
       {content}
       {authorPromptVisible ? (
         <ChatIdentityPrompt
@@ -61,9 +72,15 @@ export function ChatShell() {
           onSubmit={onAuthorSubmit}
         />
       ) : null}
-      {composerError ? <p className={styles.composerStatus}>{composerError}</p> : null}
+      {composerError ? (
+        <p id="composer-error" className={styles.composerStatus} role="alert">
+          {composerError}
+        </p>
+      ) : null}
       <Composer
+        describedBy={composerError ? 'composer-error' : undefined}
         inputDisabled={composerInputDisabled}
+        invalid={Boolean(composerError)}
         placeholder={composerPlaceholder}
         submitDisabled={composerSubmitDisabled}
         submitLabel={composerSubmitLabel}

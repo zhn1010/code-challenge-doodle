@@ -3,8 +3,10 @@ import type { FormEvent } from 'react';
 import styles from './style.module.css';
 
 type ComposerProps = {
+  describedBy?: string;
   disabled?: boolean;
   inputDisabled?: boolean;
+  invalid?: boolean;
   placeholder?: string;
   submitDisabled?: boolean;
   submitLabel?: string;
@@ -14,8 +16,10 @@ type ComposerProps = {
 };
 
 export function Composer({
+  describedBy,
   disabled = false,
   inputDisabled,
+  invalid = false,
   placeholder = 'Message',
   submitDisabled,
   submitLabel = 'Send',
@@ -33,6 +37,8 @@ export function Composer({
       </label>
       <input
         id="message"
+        aria-describedby={describedBy}
+        aria-invalid={invalid || undefined}
         className={styles.input}
         type="text"
         placeholder={placeholder}
