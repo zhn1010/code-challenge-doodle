@@ -81,6 +81,7 @@ export const useChatShell = (): UseChatShellResult => {
       return;
     }
 
+    // Hand focus back to the composer only when the author prompt has just been dismissed.
     if (previousAuthorPromptVisible.current) {
       composerInputRef.current?.focus();
     }

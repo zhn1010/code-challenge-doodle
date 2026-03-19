@@ -26,6 +26,8 @@
   --control-height-mobile: 3.5rem;
   /* Responsive side gutter: never smaller than 1rem, scales with viewport width, and caps at 7rem. */
   --page-gutter: clamp(var(--space-4), 5vw, 7rem);
+  /* Safe-area inset lets the sticky composer sit clear of mobile device cutouts. */
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
   --message-max-width: min(40rem, calc(100% - 7rem));
   color: var(--color-text);
   background: #eef3f7;
@@ -51,6 +53,8 @@ body,
 body {
   min-height: 100vh;
   overflow: hidden;
+  /* Keep the app shell fixed so only the chat pane handles vertical scrolling. */
+  overscroll-behavior-y: none;
 }
 
 button,

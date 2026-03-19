@@ -7,7 +7,8 @@
   align-items: center;
   gap: var(--space-4);
   min-height: var(--composer-height);
-  padding: var(--space-4) var(--page-gutter);
+  /* Include the device safe area so the bar clears iOS home-indicator regions. */
+  padding: var(--space-4) var(--page-gutter) calc(var(--space-4) + var(--safe-area-bottom));
   background: var(--color-surface-composer);
   box-shadow: 0 calc(var(--space-2) * -1) var(--space-6) rgba(37, 99, 155, 0.2);
 }
@@ -35,6 +36,9 @@
   color: var(--color-text-strong);
   padding: 0 var(--space-4);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  /* Prevent the field from visually spilling out when very long text is present. */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .input::placeholder {
@@ -62,7 +66,7 @@
   /* Reduce composer footprint on mobile while preserving tap targets. */
   .composer {
     gap: var(--space-3);
-    padding: var(--space-3);
+    padding: var(--space-3) var(--space-3) calc(var(--space-3) + var(--safe-area-bottom));
   }
 
   .input,

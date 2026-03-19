@@ -3,7 +3,13 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--space-8) var(--page-gutter) calc(var(--composer-height) + var(--space-8));
+  /* Preserve native-feeling momentum scroll inside the chat pane on touch devices. */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  /* Bottom scroll padding keeps the last message clear of the sticky composer. */
+  scroll-padding-bottom: calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));
+  padding: var(--space-8) var(--page-gutter)
+    calc(var(--composer-height) + var(--space-8) + var(--safe-area-bottom));
 }
 
 /* Keep messages anchored toward the bottom like a real chat thread. */
@@ -18,6 +24,7 @@
 @media (max-width: 48rem) {
   /* Tighten side gutters and bottom spacing for mobile. */
   .messages {
-    padding: var(--space-6) var(--space-3) calc(var(--composer-height) + var(--space-6));
+    padding: var(--space-6) var(--space-3)
+      calc(var(--composer-height) + var(--space-6) + var(--safe-area-bottom));
   }
 }
