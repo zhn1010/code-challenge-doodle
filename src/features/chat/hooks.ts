@@ -1,12 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { chatApi } from './api';
-import type { GetMessagesParams, Message, NormalizedApiError } from './types';
+import type { CreateMessageInput, GetMessagesParams, Message, NormalizedApiError } from './types';
 
 type UseMessagesResult = {
   messages: Message[];
   loading: boolean;
   error: NormalizedApiError | null;
+};
+
+type UseCreateMessageResult = {
+  createMessage: (input: CreateMessageInput) => Promise<Message>;
+  sending: boolean;
+  error: NormalizedApiError | null;
+  clearError: () => void;
 };
 
 const isNormalizedApiError = (error: unknown): error is NormalizedApiError => {
@@ -75,5 +82,63 @@ export const useMessages = (params?: GetMessagesParams): UseMessagesResult => {
     messages,
     loading,
     error,
+  };
+};
+
+export const useCreateMessage = (): UseCreateMessageResult => {
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<NormalizedApiError | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
+
+  const createMessage = async (input: CreateMessageInput): Promise<Message> => {
+    abortControllerRef.current?.abort();
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      setSending(true);
+      setError(null);
+
+      return await chatApi.createMessage(input, abortController.signal);
+    } catch (caughtError) {
+      if (isAbortError(caughtError)) {
+        throw caughtError;
+      }
+
+      const normalizedError = isNormalizedApiError(caughtError)
+        ? caughtError
+        : {
+            statusCode: 500,
+            message: 'Unexpected API error',
+            issues: [],
+          };
+
+      setError(normalizedError);
+      throw normalizedError;
+    } finally {
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = null;
+      }
+
+      if (!abortController.signal.aborted) {
+        setSending(false);
+      }
+    }
+  };
+
+  return {
+    createMessage,
+    sending,
+    error,
+    clearError: () => {
+      setError(null);
+    },
   };
 };

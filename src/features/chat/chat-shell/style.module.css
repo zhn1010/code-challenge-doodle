@@ -11,9 +11,21 @@
   background-size: 40rem auto;
 }
 
+.composerStatus {
+  margin: 0;
+  padding: 0 var(--page-gutter) var(--space-3);
+  color: #ae2e24;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+}
+
 @media (max-width: 48rem) {
   /* Scale the background down on narrow screens so the pattern stays subtle. */
   .viewport {
     background-size: 28rem auto;
+  }
+
+  .composerStatus {
+    padding-inline: var(--page-gutter);
   }
 }
