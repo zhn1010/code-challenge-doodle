@@ -1,6 +1,6 @@
-import { Composer } from '../composer';
-import { MessageList } from '../message-list';
-import type { ChatMessageItem } from '../../features/chat/types';
+import { Composer } from '../../../components/composer';
+import { MessageList } from '../../../components/message-list';
+import type { ChatMessageItem } from '../types';
 import styles from './style.module.css';
 
 const sampleMessages: ChatMessageItem[] = [

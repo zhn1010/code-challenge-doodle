@@ -4,7 +4,7 @@
   min-height: inherit;
   flex-direction: column;
   background-color: #fbfbfb;
-  background-image: url('../../../assets/Body BG.png');
+  background-image: url('../../../../assets/Body BG.png');
   background-position: center;
   background-size: 40rem auto;
 }

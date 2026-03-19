@@ -109,23 +109,24 @@ const request = async <T>(input: string, init?: RequestInit): Promise<T> => {
 };
 
 export const chatApi = {
-  getMessages(params: GetMessagesParams = {}): Promise<Message[]> {
+  getMessages(params: GetMessagesParams = {}, signal?: AbortSignal): Promise<Message[]> {
     const queryString = createQueryString({
       limit: params.limit ?? defaultMessagesLimit,
       after: params.after,
       before: params.before,
     });
 
-    return request<Message[]>(`${messagesUrl}${queryString}`);
+    return request<Message[]>(`${messagesUrl}${queryString}`, { signal });
   },
 
-  createMessage(input: CreateMessageInput): Promise<Message> {
+  createMessage(input: CreateMessageInput, signal?: AbortSignal): Promise<Message> {
     return request<Message>(messagesUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(input),
+      signal,
     });
   },
 };

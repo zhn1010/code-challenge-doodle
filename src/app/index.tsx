@@ -1,4 +1,4 @@
-import { ChatShell } from '../components/chat-shell';
+import { ChatShell } from '../features/chat/chat-shell';
 
 import styles from './style.module.css';
 
