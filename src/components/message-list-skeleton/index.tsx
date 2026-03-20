@@ -1,3 +1,4 @@
+import { SkeletonLine } from '../skeleton-line';
 import styles from './style.module.css';
 
 type SkeletonLineWidth = 'wide' | 'medium' | 'short';
@@ -34,15 +35,12 @@ export function MessageListSkeleton() {
             return (
               <div key={item.id} className={bubbleClassName}>
                 {item.variant === 'incoming' ? (
-                  <div className={`${styles.skeletonLine} ${styles.skeletonAuthor}`} />
+                  <SkeletonLine className={styles.skeletonAuthor} />
                 ) : null}
                 {item.lines.map((line) => (
-                  <div
-                    key={`${item.id}-${line}`}
-                    className={`${styles.skeletonLine} ${lineWidthClassNames[line]}`}
-                  />
+                  <SkeletonLine key={`${item.id}-${line}`} className={lineWidthClassNames[line]} />
                 ))}
-                <div className={`${styles.skeletonLine} ${styles.skeletonMeta}`} />
+                <SkeletonLine className={styles.skeletonMeta} />
               </div>
             );
           })}

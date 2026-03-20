@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
 
+import { SkeletonLine } from '../skeleton-line';
 import { MessageItem } from '../message-item';
 import type { ChatMessageItem } from '../../features/chat/types';
 import styles from './style.module.css';
@@ -35,8 +36,10 @@ export function MessageList({
         ) : null}
         {loadingOlder ? (
           <div className={styles.olderSkeleton} aria-hidden="true">
-            <div className={styles.olderSkeletonLine} />
-            <div className={`${styles.olderSkeletonLine} ${styles.olderSkeletonLineShort}`} />
+            <SkeletonLine className={styles.olderSkeletonLine} />
+            <SkeletonLine
+              className={`${styles.olderSkeletonLine} ${styles.olderSkeletonLineShort}`}
+            />
           </div>
         ) : null}
         {loadOlderErrorMessage ? (

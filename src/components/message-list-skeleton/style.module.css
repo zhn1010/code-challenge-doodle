@@ -35,19 +35,6 @@
   background: rgba(255, 241, 174, 0.72);
 }
 
-.skeletonLine {
-  height: 0.875rem;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(224, 229, 236, 0.9) 0%,
-    rgba(244, 247, 250, 0.95) 50%,
-    rgba(224, 229, 236, 0.9) 100%
-  );
-  background-size: 200% 100%;
-  animation: skeletonShimmer 1.4s linear infinite;
-}
-
 .skeletonAuthor {
   width: 7rem;
   height: 1rem;
@@ -72,16 +59,6 @@
   width: 6rem;
   margin-top: var(--space-3);
   margin-left: auto;
-}
-
-@keyframes skeletonShimmer {
-  from {
-    background-position: 200% 0;
-  }
-
-  to {
-    background-position: -200% 0;
-  }
 }
 
 @media (--breakpoint-mobile) {

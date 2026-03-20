@@ -1,0 +1,21 @@
+.line {
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(224, 229, 236, 0.9) 0%,
+    rgba(244, 247, 250, 0.95) 50%,
+    rgba(224, 229, 236, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s linear infinite;
+}
+
+@keyframes skeletonShimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
