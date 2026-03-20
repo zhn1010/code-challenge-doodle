@@ -23,19 +23,40 @@
 .loadOlderButton {
   align-self: center;
   margin-bottom: var(--space-4);
+  min-height: 2.5rem;
   padding: 0.625rem 1rem;
-  border: 1px solid rgba(18, 48, 95, 0.12);
+  border: 1px solid rgba(18, 48, 95, 0.14);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.94);
   color: #12305f;
+  box-shadow: 0 0.5rem 1.25rem rgba(18, 48, 95, 0.08);
+  cursor: pointer;
   font: inherit;
   font-size: 0.9375rem;
   font-weight: 500;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+
+.loadOlderButton:hover {
+  border-color: rgba(18, 48, 95, 0.24);
+  background: #fff;
+  box-shadow: 0 0.75rem 1.5rem rgba(18, 48, 95, 0.1);
+  transform: translateY(-1px);
+}
+
+.loadOlderButton:focus-visible {
+  outline: 2px solid rgba(46, 148, 215, 0.45);
+  outline-offset: 2px;
 }
 
 .olderSkeleton {
   display: grid;
   gap: var(--space-2);
+  align-self: center;
   margin-bottom: var(--space-4);
 }
 
@@ -58,9 +79,15 @@
 }
 
 .olderError {
+  align-self: center;
   margin: 0 0 var(--space-4);
+  padding: 0.625rem 0.875rem;
+  border: 1px solid rgba(220, 38, 38, 0.16);
+  border-radius: var(--radius-card);
+  background: rgba(255, 255, 255, 0.92);
   color: #ae2e24;
   font-size: 0.9375rem;
+  text-align: center;
 }
 
 /* Keep messages anchored toward the bottom like a real chat thread. */
@@ -88,5 +115,10 @@
   /* Keep the notes-based 24px top rhythm while narrowing the side gutters to 16px on mobile. */
   .messages {
     padding: var(--space-6) var(--page-gutter) var(--space-2);
+  }
+
+  .loadOlderButton {
+    width: 100%;
+    max-width: 14rem;
   }
 }
