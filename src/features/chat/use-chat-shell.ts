@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent, RefObject } from 'react';
 
 import { appConfig } from '../../lib/config';
@@ -12,9 +12,9 @@ import {
 import { useLocalAuthor } from './identity';
 import { mapMessageToChatMessageItem } from './mappers';
 import type { Message } from './types';
+import { useChatScroll } from './use-chat-scroll';
 
 const INITIAL_MESSAGES_PAGE_SIZE = appConfig.chatApi.defaultMessagesLimit;
-const SCROLL_TO_LATEST_THRESHOLD = 24;
 
 const mergeMessages = (...messageGroups: Message[][]): Message[] => {
   const uniqueMessages = new Map<string, Message>();
@@ -26,17 +26,6 @@ const mergeMessages = (...messageGroups: Message[][]): Message[] => {
   return Array.from(uniqueMessages.values()).sort(
     (firstMessage, secondMessage) =>
       new Date(firstMessage.createdAt).getTime() - new Date(secondMessage.createdAt).getTime(),
-  );
-};
-
-const isNearBottom = (container: HTMLDivElement | null): boolean => {
-  if (!container) {
-    return false;
-  }
-
-  return (
-    container.scrollHeight - container.scrollTop - container.clientHeight <=
-    SCROLL_TO_LATEST_THRESHOLD
   );
 };
 
@@ -86,13 +75,6 @@ export const useChatShell = (): UseChatShellResult => {
   const { author, hasAuthor, saveAuthor } = useLocalAuthor();
   const authorInputRef = useRef<HTMLInputElement>(null);
   const composerInputRef = useRef<HTMLInputElement>(null);
-  const messageListRef = useRef<HTMLDivElement>(null);
-  const hasAppliedInitialScroll = useRef(false);
-  const pendingScrollToLatest = useRef(false);
-  const pendingScrollRestore = useRef<{
-    previousScrollHeight: number;
-    previousScrollTop: number;
-  } | null>(null);
   const previousAuthorPromptVisible = useRef(!hasAuthor);
   const [authorDraft, setAuthorDraft] = useState(author);
   const [authorError, setAuthorError] = useState<string | null>(null);
@@ -101,7 +83,6 @@ export const useChatShell = (): UseChatShellResult => {
   const [polledMessages, setPolledMessages] = useState<Message[]>([]);
   const [sentMessages, setSentMessages] = useState<Message[]>([]);
   const [hasMoreOlderMessages, setHasMoreOlderMessages] = useState<boolean | null>(null);
-  const [isAtLatest, setIsAtLatest] = useState(true);
   const visibleMessages = mergeMessages(olderMessages, messages, polledMessages, sentMessages);
   const messageItems = visibleMessages.map((message) =>
     mapMessageToChatMessageItem(message, author),
@@ -113,48 +94,27 @@ export const useChatShell = (): UseChatShellResult => {
     !loading &&
     !loadingOlder &&
     visibleMessages.length > 0;
+  const {
+    isAtLatest,
+    messageListRef,
+    onMessageListScroll,
+    prepareScrollRestore,
+    requestScrollToLatest,
+  } = useChatScroll({
+    hasError: Boolean(error),
+    loading,
+    messageCount: messageItems.length,
+  });
 
   usePollNewMessages({
     after: latestMessageCreatedAt,
     enabled:
       !loading && !error && visibleMessages.length > 0 && isAtLatest && !trimmedComposerValue,
     onMessages: (nextMessages) => {
-      pendingScrollToLatest.current = true;
+      requestScrollToLatest();
       setPolledMessages((currentMessages) => mergeMessages(currentMessages, nextMessages));
     },
   });
-
-  useLayoutEffect(() => {
-    if (!messageListRef.current || messageItems.length === 0) {
-      return;
-    }
-
-    if (!hasAppliedInitialScroll.current && !loading && !error) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-      hasAppliedInitialScroll.current = true;
-      return;
-    }
-
-    if (pendingScrollRestore.current) {
-      const { previousScrollHeight, previousScrollTop } = pendingScrollRestore.current;
-      const nextScrollHeight = messageListRef.current.scrollHeight;
-
-      messageListRef.current.scrollTop =
-        previousScrollTop + (nextScrollHeight - previousScrollHeight);
-      pendingScrollRestore.current = null;
-      setIsAtLatest(isNearBottom(messageListRef.current));
-      return;
-    }
-
-    if (pendingScrollToLatest.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-      pendingScrollToLatest.current = false;
-      setIsAtLatest(true);
-      return;
-    }
-
-    setIsAtLatest(isNearBottom(messageListRef.current));
-  }, [error, loading, messageItems.length]);
 
   useEffect(() => {
     if (!hasAuthor) {
@@ -198,7 +158,7 @@ export const useChatShell = (): UseChatShellResult => {
         author,
       });
 
-      pendingScrollToLatest.current = true;
+      requestScrollToLatest();
       setSentMessages((currentMessages) => [...currentMessages, createdMessage]);
       setComposerValue('');
       composerInputRef.current?.focus();
@@ -214,10 +174,9 @@ export const useChatShell = (): UseChatShellResult => {
       return;
     }
 
-    const scrollContainer = messageListRef.current;
     const oldestMessage = visibleMessages[0];
 
-    if (!scrollContainer || !oldestMessage) {
+    if (!oldestMessage) {
       return;
     }
 
@@ -231,10 +190,9 @@ export const useChatShell = (): UseChatShellResult => {
         return;
       }
 
-      pendingScrollRestore.current = {
-        previousScrollHeight: scrollContainer.scrollHeight,
-        previousScrollTop: scrollContainer.scrollTop,
-      };
+      if (!prepareScrollRestore()) {
+        return;
+      }
 
       setOlderMessages((currentMessages) => mergeMessages(nextOlderMessages, currentMessages));
       setHasMoreOlderMessages(nextOlderMessages.length >= OLDER_MESSAGES_PAGE_SIZE);
@@ -289,8 +247,6 @@ export const useChatShell = (): UseChatShellResult => {
     },
     onComposerSubmit,
     onLoadOlderMessages,
-    onMessageListScroll: () => {
-      setIsAtLatest(isNearBottom(messageListRef.current));
-    },
+    onMessageListScroll,
   };
 };
