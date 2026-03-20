@@ -7,12 +7,14 @@ import {
   useCreateMessage,
   useLoadOlderMessages,
   useMessages,
+  usePollNewMessages,
 } from './hooks';
 import { useLocalAuthor } from './identity';
 import { mapMessageToChatMessageItem } from './mappers';
 import type { Message } from './types';
 
 const INITIAL_MESSAGES_PAGE_SIZE = appConfig.chatApi.defaultMessagesLimit;
+const SCROLL_TO_LATEST_THRESHOLD = 24;
 
 const mergeMessages = (...messageGroups: Message[][]): Message[] => {
   const uniqueMessages = new Map<string, Message>();
@@ -24,6 +26,17 @@ const mergeMessages = (...messageGroups: Message[][]): Message[] => {
   return Array.from(uniqueMessages.values()).sort(
     (firstMessage, secondMessage) =>
       new Date(firstMessage.createdAt).getTime() - new Date(secondMessage.createdAt).getTime(),
+  );
+};
+
+const isNearBottom = (container: HTMLDivElement | null): boolean => {
+  if (!container) {
+    return false;
+  }
+
+  return (
+    container.scrollHeight - container.scrollTop - container.clientHeight <=
+    SCROLL_TO_LATEST_THRESHOLD
   );
 };
 
@@ -83,18 +96,35 @@ export const useChatShell = (): UseChatShellResult => {
   const [authorError, setAuthorError] = useState<string | null>(null);
   const [composerValue, setComposerValue] = useState('');
   const [olderMessages, setOlderMessages] = useState<Message[]>([]);
+  const [polledMessages, setPolledMessages] = useState<Message[]>([]);
   const [sentMessages, setSentMessages] = useState<Message[]>([]);
   const [hasMoreOlderMessages, setHasMoreOlderMessages] = useState<boolean | null>(null);
-  const visibleMessages = mergeMessages(olderMessages, messages, sentMessages);
+  const visibleMessages = mergeMessages(olderMessages, messages, polledMessages, sentMessages);
   const messageItems = visibleMessages.map((message) =>
     mapMessageToChatMessageItem(message, author),
   );
+  const latestMessageCreatedAt = visibleMessages[visibleMessages.length - 1]?.createdAt;
   const trimmedComposerValue = composerValue.trim();
   const canLoadOlder =
     (hasMoreOlderMessages ?? messages.length >= INITIAL_MESSAGES_PAGE_SIZE) &&
     !loading &&
     !loadingOlder &&
     visibleMessages.length > 0;
+
+  usePollNewMessages({
+    after: latestMessageCreatedAt,
+    enabled: !loading && !error && visibleMessages.length > 0,
+    onMessages: (nextMessages) => {
+      const shouldStickToLatest =
+        trimmedComposerValue.length === 0 && isNearBottom(messageListRef.current);
+
+      if (shouldStickToLatest) {
+        pendingScrollToLatest.current = true;
+      }
+
+      setPolledMessages((currentMessages) => mergeMessages(currentMessages, nextMessages));
+    },
+  });
 
   useLayoutEffect(() => {
     if (!messageListRef.current || messageItems.length === 0) {
