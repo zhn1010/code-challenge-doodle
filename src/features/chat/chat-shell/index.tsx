@@ -17,7 +17,10 @@ export function ChatShell() {
     composerSubmitDisabled,
     composerSubmitLabel,
     composerValue,
+    canLoadOlder,
     loadErrorMessage,
+    loadOlderErrorMessage,
+    loadingOlder,
     loadingAnnouncement,
     loading,
     messageItems,
@@ -27,22 +30,27 @@ export function ChatShell() {
     onAuthorSubmit,
     onComposerChange,
     onComposerSubmit,
+    onLoadOlderMessages,
   } = useChatShell();
 
   return (
     <section
       className={styles.viewport}
-      aria-busy={loading || sending || undefined}
+      aria-busy={loading || loadingOlder || sending || undefined}
       aria-label="Chat conversation"
     >
       <p className={styles.visuallyHidden} role="status" aria-atomic="true">
         {loadingAnnouncement ?? ''}
       </p>
       <ChatShellContent
+        canLoadOlder={canLoadOlder}
         loadErrorMessage={loadErrorMessage}
+        loadOlderErrorMessage={loadOlderErrorMessage}
+        loadingOlder={loadingOlder}
         loading={loading}
         messageItems={messageItems}
         messageListRef={messageListRef}
+        onLoadOlderMessages={onLoadOlderMessages}
       />
       {authorPromptVisible ? (
         <ChatIdentityPrompt

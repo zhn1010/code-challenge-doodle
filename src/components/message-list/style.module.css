@@ -14,9 +14,53 @@
 /* Center the conversation inside the 640px content column from the notes. */
 .content {
   display: flex;
+  flex-direction: column;
   width: min(100%, var(--chat-content-max-width));
   min-height: 100%;
   margin-inline: auto;
+}
+
+.loadOlderButton {
+  align-self: center;
+  margin-bottom: var(--space-4);
+  padding: 0.625rem 1rem;
+  border: 1px solid rgba(18, 48, 95, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #12305f;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.olderSkeleton {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.olderSkeletonLine {
+  width: 10rem;
+  height: 0.75rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(224, 229, 236, 0.9) 0%,
+    rgba(244, 247, 250, 0.95) 50%,
+    rgba(224, 229, 236, 0.9) 100%
+  );
+  background-size: 200% 100%;
+  animation: olderSkeletonShimmer 1.4s linear infinite;
+}
+
+.olderSkeletonLineShort {
+  width: 6rem;
+}
+
+.olderError {
+  margin: 0 0 var(--space-4);
+  color: #ae2e24;
+  font-size: 0.9375rem;
 }
 
 /* Keep messages anchored toward the bottom like a real chat thread. */
@@ -28,6 +72,16 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: var(--space-2);
+}
+
+@keyframes olderSkeletonShimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (--breakpoint-mobile) {

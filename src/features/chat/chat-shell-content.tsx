@@ -7,16 +7,24 @@ import type { ChatMessageItem } from './types';
 
 type ChatShellContentProps = {
   loadErrorMessage: string | null;
+  loadOlderErrorMessage: string | null;
+  loadingOlder: boolean;
   loading: boolean;
   messageItems: ChatMessageItem[];
   messageListRef: RefObject<HTMLDivElement | null>;
+  canLoadOlder: boolean;
+  onLoadOlderMessages: () => Promise<void>;
 };
 
 export function ChatShellContent({
   loadErrorMessage,
+  loadOlderErrorMessage,
+  loadingOlder,
   loading,
   messageItems,
   messageListRef,
+  canLoadOlder,
+  onLoadOlderMessages,
 }: ChatShellContentProps) {
   if (loading) {
     return <MessageListSkeleton />;
@@ -35,5 +43,14 @@ export function ChatShellContent({
     );
   }
 
-  return <MessageList messages={messageItems} containerRef={messageListRef} />;
+  return (
+    <MessageList
+      canLoadOlder={canLoadOlder}
+      loadOlderErrorMessage={loadOlderErrorMessage}
+      loadingOlder={loadingOlder}
+      messages={messageItems}
+      containerRef={messageListRef}
+      onLoadOlderMessages={onLoadOlderMessages}
+    />
+  );
 }
