@@ -36,10 +36,12 @@ export function MessageList({
         ) : null}
         {loadingOlder ? (
           <div className={styles.olderSkeleton} aria-hidden="true">
+            <SkeletonLine className={styles.olderSkeletonAuthor} />
             <SkeletonLine className={styles.olderSkeletonLine} />
             <SkeletonLine
               className={`${styles.olderSkeletonLine} ${styles.olderSkeletonLineShort}`}
             />
+            <SkeletonLine className={styles.olderSkeletonMeta} />
           </div>
         ) : null}
         {loadOlderErrorMessage ? (

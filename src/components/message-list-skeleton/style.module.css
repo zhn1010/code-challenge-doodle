@@ -43,20 +43,24 @@
 
 .skeletonLineWide {
   width: 100%;
+  height: 0.875rem;
 }
 
 .skeletonLineMedium {
   width: 72%;
+  height: 0.875rem;
   margin-top: var(--space-3);
 }
 
 .skeletonLineShort {
   width: 48%;
+  height: 0.875rem;
   margin-top: var(--space-3);
 }
 
 .skeletonMeta {
   width: 6rem;
+  height: 0.875rem;
   margin-top: var(--space-3);
   margin-left: auto;
 }
