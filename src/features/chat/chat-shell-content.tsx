@@ -14,6 +14,7 @@ type ChatShellContentProps = {
   messageListRef: RefObject<HTMLDivElement | null>;
   canLoadOlder: boolean;
   onLoadOlderMessages: () => Promise<void>;
+  onMessageListScroll: () => void;
 };
 
 export function ChatShellContent({
@@ -25,6 +26,7 @@ export function ChatShellContent({
   messageListRef,
   canLoadOlder,
   onLoadOlderMessages,
+  onMessageListScroll,
 }: ChatShellContentProps) {
   if (loading) {
     return <MessageListSkeleton />;
@@ -51,6 +53,7 @@ export function ChatShellContent({
       messages={messageItems}
       containerRef={messageListRef}
       onLoadOlderMessages={onLoadOlderMessages}
+      onScroll={onMessageListScroll}
     />
   );
 }

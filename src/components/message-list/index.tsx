@@ -12,6 +12,7 @@ type MessageListProps = {
   messages: ChatMessageItem[];
   containerRef?: Ref<HTMLDivElement>;
   onLoadOlderMessages?: () => Promise<void>;
+  onScroll?: () => void;
 };
 
 export function MessageList({
@@ -21,9 +22,10 @@ export function MessageList({
   messages,
   containerRef,
   onLoadOlderMessages,
+  onScroll,
 }: MessageListProps) {
   return (
-    <div ref={containerRef} className={styles.messages}>
+    <div ref={containerRef} className={styles.messages} onScroll={onScroll}>
       <div className={styles.content}>
         {canLoadOlder ? (
           <button

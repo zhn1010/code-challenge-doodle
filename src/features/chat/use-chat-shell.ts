@@ -66,6 +66,7 @@ type UseChatShellResult = {
   onComposerChange: (value: string) => void;
   onComposerSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   onLoadOlderMessages: () => Promise<void>;
+  onMessageListScroll: () => void;
 };
 
 export const useChatShell = (): UseChatShellResult => {
@@ -99,6 +100,7 @@ export const useChatShell = (): UseChatShellResult => {
   const [polledMessages, setPolledMessages] = useState<Message[]>([]);
   const [sentMessages, setSentMessages] = useState<Message[]>([]);
   const [hasMoreOlderMessages, setHasMoreOlderMessages] = useState<boolean | null>(null);
+  const [isAtLatest, setIsAtLatest] = useState(true);
   const visibleMessages = mergeMessages(olderMessages, messages, polledMessages, sentMessages);
   const messageItems = visibleMessages.map((message) =>
     mapMessageToChatMessageItem(message, author),
@@ -113,15 +115,10 @@ export const useChatShell = (): UseChatShellResult => {
 
   usePollNewMessages({
     after: latestMessageCreatedAt,
-    enabled: !loading && !error && visibleMessages.length > 0,
+    enabled:
+      !loading && !error && visibleMessages.length > 0 && isAtLatest && !trimmedComposerValue,
     onMessages: (nextMessages) => {
-      const shouldStickToLatest =
-        trimmedComposerValue.length === 0 && isNearBottom(messageListRef.current);
-
-      if (shouldStickToLatest) {
-        pendingScrollToLatest.current = true;
-      }
-
+      pendingScrollToLatest.current = true;
       setPolledMessages((currentMessages) => mergeMessages(currentMessages, nextMessages));
     },
   });
@@ -138,13 +135,18 @@ export const useChatShell = (): UseChatShellResult => {
       messageListRef.current.scrollTop =
         previousScrollTop + (nextScrollHeight - previousScrollHeight);
       pendingScrollRestore.current = null;
+      setIsAtLatest(isNearBottom(messageListRef.current));
       return;
     }
 
     if (pendingScrollToLatest.current) {
       messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
       pendingScrollToLatest.current = false;
+      setIsAtLatest(true);
+      return;
     }
+
+    setIsAtLatest(isNearBottom(messageListRef.current));
   }, [error, loading, messageItems.length]);
 
   useEffect(() => {
@@ -280,5 +282,8 @@ export const useChatShell = (): UseChatShellResult => {
     },
     onComposerSubmit,
     onLoadOlderMessages,
+    onMessageListScroll: () => {
+      setIsAtLatest(isNearBottom(messageListRef.current));
+    },
   };
 };

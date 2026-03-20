@@ -31,6 +31,7 @@ export function ChatShell() {
     onComposerChange,
     onComposerSubmit,
     onLoadOlderMessages,
+    onMessageListScroll,
   } = useChatShell();
 
   return (
@@ -51,6 +52,7 @@ export function ChatShell() {
         messageItems={messageItems}
         messageListRef={messageListRef}
         onLoadOlderMessages={onLoadOlderMessages}
+        onMessageListScroll={onMessageListScroll}
       />
       {authorPromptVisible ? (
         <ChatIdentityPrompt
