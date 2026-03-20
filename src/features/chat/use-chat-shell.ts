@@ -87,6 +87,7 @@ export const useChatShell = (): UseChatShellResult => {
   const authorInputRef = useRef<HTMLInputElement>(null);
   const composerInputRef = useRef<HTMLInputElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
+  const hasAppliedInitialScroll = useRef(false);
   const pendingScrollToLatest = useRef(false);
   const pendingScrollRestore = useRef<{
     previousScrollHeight: number;
@@ -125,6 +126,12 @@ export const useChatShell = (): UseChatShellResult => {
 
   useLayoutEffect(() => {
     if (!messageListRef.current || messageItems.length === 0) {
+      return;
+    }
+
+    if (!hasAppliedInitialScroll.current && !loading && !error) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+      hasAppliedInitialScroll.current = true;
       return;
     }
 
