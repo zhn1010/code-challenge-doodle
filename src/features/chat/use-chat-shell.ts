@@ -2,9 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { RefObject, SyntheticEvent } from 'react';
 
 import { useLocalAuthor } from './identity';
+import { useChatConversation, useChatScrollEffect, useChatScrollState } from './hooks';
 import { mapMessageToChatMessageItem } from './mappers';
-import { useChatConversation } from './use-chat-conversation';
-import { useChatScrollEffect, useChatScrollState } from './use-chat-scroll';
 
 type UseChatShellResult = {
   authorError: string | null;

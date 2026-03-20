@@ -1,14 +1,14 @@
 import { useState } from 'react';
 
-import { appConfig } from '../../lib/config';
+import { appConfig } from '../../../lib/config';
+import type { Message } from '../types';
 import {
   OLDER_MESSAGES_PAGE_SIZE,
   useCreateMessage,
   useLoadOlderMessages,
   useMessages,
   usePollNewMessages,
-} from './hooks';
-import type { Message } from './types';
+} from './index';
 
 const INITIAL_MESSAGES_PAGE_SIZE = appConfig.chatApi.defaultMessagesLimit;
 
