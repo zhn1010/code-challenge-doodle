@@ -16,7 +16,7 @@ Your task is to implement the frontend for a chat application. The backend API, 
 
 - **Authentication:** All message related endpoints require a Bearer token.
 - **Endpoints:**
-  - **GET /api/v1/messages:** Retrieves messages in reverse chronological order with optional pagination.
+  - **GET /api/v1/messages:** Retrieves messages in chronological order, with `before` and `after` pagination support.
   - **POST /api/v1/messages:** Creates a new chat message.
 - **Example cURL Commands after you run it locally:**
 
@@ -78,3 +78,39 @@ pnpm run dev
 The frontend dev server will start on `http://localhost:5173` by default.
 
 The chat API is expected to run separately on `http://localhost:3000`.
+
+## Environment Variables
+
+Optional overrides are available through Vite env vars:
+
+```bash
+cp .env.example .env
+```
+
+- `VITE_API_BASE_URL`
+- `VITE_CHAT_API_TOKEN`
+
+## Available Scripts
+
+```bash
+pnpm run dev
+pnpm run build
+pnpm run typecheck
+pnpm run lint
+pnpm run format:check
+pnpm run check
+```
+
+## Implemented Behavior
+
+- Loads the latest page of messages first, then renders them oldest-to-newest.
+- Prompts once for a local display name and stores it in `localStorage`.
+- Sends new messages without refetching the whole thread.
+- Supports loading older history with a `Load older messages` button.
+- Polls for newer messages only while the user is at the latest messages and not typing.
+- Includes loading, empty, error, and older-loading states.
+
+## Notes
+
+- The provided backend returns the default message list in ascending order. To show the newest page first while preserving chronological display, the frontend requests the initial page with a future `before` cursor.
+- Outgoing messages are inferred by matching the stored local author name against the fetched `author` field.
