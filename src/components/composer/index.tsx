@@ -1,4 +1,4 @@
-import type { FormEvent, Ref } from 'react';
+import type { Ref, SyntheticEvent } from 'react';
 
 import styles from './style.module.css';
 
@@ -13,7 +13,7 @@ type ComposerProps = {
   submitLabel?: string;
   value?: string;
   onChange?: (value: string) => void;
-  onSubmit?: (event: FormEvent<HTMLFormElement>) => void;
+  onSubmit?: (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => void;
 };
 
 export function Composer({

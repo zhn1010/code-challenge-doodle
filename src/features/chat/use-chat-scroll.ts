@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import type { RefObject } from 'react';
+import type { Dispatch, RefObject, SetStateAction } from 'react';
 
 const SCROLL_TO_LATEST_THRESHOLD = 24;
 
@@ -14,78 +14,60 @@ const isNearBottom = (container: HTMLDivElement | null): boolean => {
   );
 };
 
-type UseChatScrollParams = {
-  hasError: boolean;
-  loading: boolean;
-  messageCount: number;
-};
-
-type UseChatScrollResult = {
+export type ChatScrollState = {
+  hasAppliedInitialScrollRef: RefObject<boolean>;
   isAtLatest: boolean;
   messageListRef: RefObject<HTMLDivElement | null>;
   onMessageListScroll: () => void;
+  pendingScrollRestoreRef: RefObject<{
+    previousScrollHeight: number;
+    previousScrollTop: number;
+  } | null>;
+  pendingScrollToLatestRef: RefObject<boolean>;
   prepareScrollRestore: () => boolean;
   requestScrollToLatest: () => void;
+  setIsAtLatest: Dispatch<SetStateAction<boolean>>;
 };
 
-export const useChatScroll = ({
-  hasError,
-  loading,
-  messageCount,
-}: UseChatScrollParams): UseChatScrollResult => {
+type UseChatScrollEffectParams = {
+  hasError: boolean;
+  loading: boolean;
+  messageCount: number;
+  hasAppliedInitialScrollRef: RefObject<boolean>;
+  messageListRef: RefObject<HTMLDivElement | null>;
+  pendingScrollRestoreRef: RefObject<{
+    previousScrollHeight: number;
+    previousScrollTop: number;
+  } | null>;
+  pendingScrollToLatestRef: RefObject<boolean>;
+  setIsAtLatest: Dispatch<SetStateAction<boolean>>;
+};
+
+export const useChatScrollState = (): ChatScrollState => {
   const messageListRef = useRef<HTMLDivElement>(null);
-  const hasAppliedInitialScroll = useRef(false);
-  const pendingScrollToLatest = useRef(false);
-  const pendingScrollRestore = useRef<{
+  const hasAppliedInitialScrollRef = useRef(false);
+  const pendingScrollToLatestRef = useRef(false);
+  const pendingScrollRestoreRef = useRef<{
     previousScrollHeight: number;
     previousScrollTop: number;
   } | null>(null);
   const [isAtLatest, setIsAtLatest] = useState(true);
 
-  useLayoutEffect(() => {
-    if (!messageListRef.current || messageCount === 0) {
-      return;
-    }
-
-    if (!hasAppliedInitialScroll.current && !loading && !hasError) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-      hasAppliedInitialScroll.current = true;
-      return;
-    }
-
-    if (pendingScrollRestore.current) {
-      const { previousScrollHeight, previousScrollTop } = pendingScrollRestore.current;
-      const nextScrollHeight = messageListRef.current.scrollHeight;
-
-      messageListRef.current.scrollTop =
-        previousScrollTop + (nextScrollHeight - previousScrollHeight);
-      pendingScrollRestore.current = null;
-      setIsAtLatest(isNearBottom(messageListRef.current));
-      return;
-    }
-
-    if (pendingScrollToLatest.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
-      pendingScrollToLatest.current = false;
-      setIsAtLatest(true);
-      return;
-    }
-
-    setIsAtLatest(isNearBottom(messageListRef.current));
-  }, [hasError, loading, messageCount]);
-
   return {
+    hasAppliedInitialScrollRef,
     isAtLatest,
     messageListRef,
     onMessageListScroll: () => {
       setIsAtLatest(isNearBottom(messageListRef.current));
     },
+    pendingScrollRestoreRef,
+    pendingScrollToLatestRef,
     prepareScrollRestore: () => {
       if (!messageListRef.current) {
         return false;
       }
 
-      pendingScrollRestore.current = {
+      pendingScrollRestoreRef.current = {
         previousScrollHeight: messageListRef.current.scrollHeight,
         previousScrollTop: messageListRef.current.scrollTop,
       };
@@ -93,7 +75,61 @@ export const useChatScroll = ({
       return true;
     },
     requestScrollToLatest: () => {
-      pendingScrollToLatest.current = true;
+      pendingScrollToLatestRef.current = true;
     },
+    setIsAtLatest,
   };
+};
+
+export const useChatScrollEffect = ({
+  hasError,
+  loading,
+  messageCount,
+  hasAppliedInitialScrollRef,
+  messageListRef,
+  pendingScrollRestoreRef,
+  pendingScrollToLatestRef,
+  setIsAtLatest,
+}: UseChatScrollEffectParams): void => {
+  useLayoutEffect(() => {
+    const messageListElement = messageListRef.current;
+
+    if (!messageListElement || messageCount === 0) {
+      return;
+    }
+
+    if (!hasAppliedInitialScrollRef.current && !loading && !hasError) {
+      messageListElement.scrollTop = messageListElement.scrollHeight;
+      hasAppliedInitialScrollRef.current = true;
+      return;
+    }
+
+    if (pendingScrollRestoreRef.current) {
+      const { previousScrollHeight, previousScrollTop } = pendingScrollRestoreRef.current;
+      const nextScrollHeight = messageListElement.scrollHeight;
+
+      messageListElement.scrollTop = previousScrollTop + (nextScrollHeight - previousScrollHeight);
+      pendingScrollRestoreRef.current = null;
+      setIsAtLatest(isNearBottom(messageListElement));
+      return;
+    }
+
+    if (pendingScrollToLatestRef.current) {
+      messageListElement.scrollTop = messageListElement.scrollHeight;
+      pendingScrollToLatestRef.current = false;
+      setIsAtLatest(true);
+      return;
+    }
+
+    setIsAtLatest(isNearBottom(messageListElement));
+  }, [
+    hasAppliedInitialScrollRef,
+    hasError,
+    loading,
+    messageCount,
+    messageListRef,
+    pendingScrollRestoreRef,
+    pendingScrollToLatestRef,
+    setIsAtLatest,
+  ]);
 };

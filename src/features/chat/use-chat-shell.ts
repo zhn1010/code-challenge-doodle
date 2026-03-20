@@ -1,33 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import type { FormEvent, RefObject } from 'react';
+import type { RefObject, SyntheticEvent } from 'react';
 
-import { appConfig } from '../../lib/config';
-import {
-  OLDER_MESSAGES_PAGE_SIZE,
-  useCreateMessage,
-  useLoadOlderMessages,
-  useMessages,
-  usePollNewMessages,
-} from './hooks';
 import { useLocalAuthor } from './identity';
 import { mapMessageToChatMessageItem } from './mappers';
-import type { Message } from './types';
-import { useChatScroll } from './use-chat-scroll';
-
-const INITIAL_MESSAGES_PAGE_SIZE = appConfig.chatApi.defaultMessagesLimit;
-
-const mergeMessages = (...messageGroups: Message[][]): Message[] => {
-  const uniqueMessages = new Map<string, Message>();
-
-  messageGroups.flat().forEach((message) => {
-    uniqueMessages.set(message._id, message);
-  });
-
-  return Array.from(uniqueMessages.values()).sort(
-    (firstMessage, secondMessage) =>
-      new Date(firstMessage.createdAt).getTime() - new Date(secondMessage.createdAt).getTime(),
-  );
-};
+import { useChatConversation } from './use-chat-conversation';
+import { useChatScrollEffect, useChatScrollState } from './use-chat-scroll';
 
 type UseChatShellResult = {
   authorError: string | null;
@@ -51,27 +28,14 @@ type UseChatShellResult = {
   messageListRef: RefObject<HTMLDivElement | null>;
   sending: boolean;
   onAuthorChange: (value: string) => void;
-  onAuthorSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onAuthorSubmit: (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => void;
   onComposerChange: (value: string) => void;
-  onComposerSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
+  onComposerSubmit: (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => Promise<void>;
   onLoadOlderMessages: () => Promise<void>;
   onMessageListScroll: () => void;
 };
 
 export const useChatShell = (): UseChatShellResult => {
-  const { messages, loading, error } = useMessages();
-  const {
-    createMessage,
-    sending,
-    error: sendError,
-    clearError: clearSendError,
-  } = useCreateMessage();
-  const {
-    loadOlderMessages,
-    loadingOlder,
-    error: loadOlderError,
-    clearError: clearLoadOlderError,
-  } = useLoadOlderMessages();
   const { author, hasAuthor, saveAuthor } = useLocalAuthor();
   const authorInputRef = useRef<HTMLInputElement>(null);
   const composerInputRef = useRef<HTMLInputElement>(null);
@@ -79,41 +43,37 @@ export const useChatShell = (): UseChatShellResult => {
   const [authorDraft, setAuthorDraft] = useState(author);
   const [authorError, setAuthorError] = useState<string | null>(null);
   const [composerValue, setComposerValue] = useState('');
-  const [olderMessages, setOlderMessages] = useState<Message[]>([]);
-  const [polledMessages, setPolledMessages] = useState<Message[]>([]);
-  const [sentMessages, setSentMessages] = useState<Message[]>([]);
-  const [hasMoreOlderMessages, setHasMoreOlderMessages] = useState<boolean | null>(null);
-  const visibleMessages = mergeMessages(olderMessages, messages, polledMessages, sentMessages);
-  const messageItems = visibleMessages.map((message) =>
-    mapMessageToChatMessageItem(message, author),
-  );
-  const latestMessageCreatedAt = visibleMessages[visibleMessages.length - 1]?.createdAt;
   const trimmedComposerValue = composerValue.trim();
-  const canLoadOlder =
-    (hasMoreOlderMessages ?? messages.length >= INITIAL_MESSAGES_PAGE_SIZE) &&
-    !loading &&
-    !loadingOlder &&
-    visibleMessages.length > 0;
+  const scroll = useChatScrollState();
   const {
-    isAtLatest,
-    messageListRef,
-    onMessageListScroll,
-    prepareScrollRestore,
-    requestScrollToLatest,
-  } = useChatScroll({
-    hasError: Boolean(error),
+    canLoadOlder,
+    clearSendError,
+    loadErrorMessage,
+    loadOlderErrorMessage,
+    loading,
+    loadingOlder,
+    messages,
+    sending,
+    sendErrorMessage,
+    loadOlderMessages,
+    sendMessage,
+  } = useChatConversation({
+    author,
+    isAtLatest: scroll.isAtLatest,
+    isComposerIdle: trimmedComposerValue.length === 0,
+    prepareScrollRestore: scroll.prepareScrollRestore,
+    requestScrollToLatest: scroll.requestScrollToLatest,
+  });
+  const messageItems = messages.map((message) => mapMessageToChatMessageItem(message, author));
+  useChatScrollEffect({
+    hasError: Boolean(loadErrorMessage),
     loading,
     messageCount: messageItems.length,
-  });
-
-  usePollNewMessages({
-    after: latestMessageCreatedAt,
-    enabled:
-      !loading && !error && visibleMessages.length > 0 && isAtLatest && !trimmedComposerValue,
-    onMessages: (nextMessages) => {
-      requestScrollToLatest();
-      setPolledMessages((currentMessages) => mergeMessages(currentMessages, nextMessages));
-    },
+    hasAppliedInitialScrollRef: scroll.hasAppliedInitialScrollRef,
+    messageListRef: scroll.messageListRef,
+    pendingScrollRestoreRef: scroll.pendingScrollRestoreRef,
+    pendingScrollToLatestRef: scroll.pendingScrollToLatestRef,
+    setIsAtLatest: scroll.setIsAtLatest,
   });
 
   useEffect(() => {
@@ -131,7 +91,7 @@ export const useChatShell = (): UseChatShellResult => {
     previousAuthorPromptVisible.current = false;
   }, [hasAuthor]);
 
-  const onAuthorSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onAuthorSubmit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
 
     const result = saveAuthor(authorDraft);
@@ -145,7 +105,7 @@ export const useChatShell = (): UseChatShellResult => {
     setAuthorError(null);
   };
 
-  const onComposerSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const onComposerSubmit = async (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
 
     if (!hasAuthor || trimmedComposerValue.length === 0 || sending) {
@@ -153,13 +113,7 @@ export const useChatShell = (): UseChatShellResult => {
     }
 
     try {
-      const createdMessage = await createMessage({
-        message: trimmedComposerValue,
-        author,
-      });
-
-      requestScrollToLatest();
-      setSentMessages((currentMessages) => [...currentMessages, createdMessage]);
+      await sendMessage(trimmedComposerValue);
       setComposerValue('');
       composerInputRef.current?.focus();
     } catch (caughtError) {
@@ -170,32 +124,8 @@ export const useChatShell = (): UseChatShellResult => {
   };
 
   const onLoadOlderMessages = async () => {
-    if (loading || loadingOlder || error || visibleMessages.length === 0 || !canLoadOlder) {
-      return;
-    }
-
-    const oldestMessage = visibleMessages[0];
-
-    if (!oldestMessage) {
-      return;
-    }
-
-    clearLoadOlderError();
-
     try {
-      const nextOlderMessages = await loadOlderMessages(oldestMessage.createdAt);
-
-      if (nextOlderMessages.length === 0) {
-        setHasMoreOlderMessages(false);
-        return;
-      }
-
-      if (!prepareScrollRestore()) {
-        return;
-      }
-
-      setOlderMessages((currentMessages) => mergeMessages(nextOlderMessages, currentMessages));
-      setHasMoreOlderMessages(nextOlderMessages.length >= OLDER_MESSAGES_PAGE_SIZE);
+      await loadOlderMessages();
     } catch (caughtError) {
       if (caughtError instanceof DOMException && caughtError.name === 'AbortError') {
         return;
@@ -208,15 +138,15 @@ export const useChatShell = (): UseChatShellResult => {
     authorInputRef,
     authorPromptVisible: !hasAuthor,
     authorValue: authorDraft,
-    composerError: sendError?.message ?? null,
+    composerError: sendErrorMessage,
     composerInputDisabled: !hasAuthor || sending,
     composerInputRef,
     composerPlaceholder: hasAuthor ? 'Message' : 'Choose your display name to join the chat',
     composerSubmitDisabled: !hasAuthor || loading || sending || trimmedComposerValue.length === 0,
     composerSubmitLabel: sending ? 'Sending...' : 'Send',
     composerValue,
-    loadErrorMessage: error?.message ?? null,
-    loadOlderErrorMessage: loadOlderError?.message ?? null,
+    loadErrorMessage,
+    loadOlderErrorMessage,
     loadingOlder,
     canLoadOlder,
     loadingAnnouncement: loading
@@ -228,7 +158,7 @@ export const useChatShell = (): UseChatShellResult => {
           : null,
     loading,
     messageItems,
-    messageListRef,
+    messageListRef: scroll.messageListRef,
     sending,
     onAuthorChange: (value: string) => {
       setAuthorDraft(value);
@@ -241,12 +171,12 @@ export const useChatShell = (): UseChatShellResult => {
     onComposerChange: (value: string) => {
       setComposerValue(value);
 
-      if (sendError) {
+      if (sendErrorMessage) {
         clearSendError();
       }
     },
     onComposerSubmit,
     onLoadOlderMessages,
-    onMessageListScroll,
+    onMessageListScroll: scroll.onMessageListScroll,
   };
 };
