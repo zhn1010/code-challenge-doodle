@@ -114,3 +114,29 @@ pnpm run check
 
 - The provided backend returns the default message list in ascending order. To show the newest page first while preserving chronological display, the frontend requests the initial page with a future `before` cursor.
 - Outgoing messages are inferred by matching the stored local author name against the fetched `author` field.
+
+## Assumptions for Ambiguous Parts
+
+Two parts of the challenge were not fully specified in the provided materials, so the frontend makes these assumptions:
+
+### 1. Which user name should be sent when posting messages?
+
+The mockups do not show a permanent author field for outgoing messages, but the backend requires an `author` value on `POST /api/v1/messages`.
+
+Assumption and solution:
+
+- The app asks once for a lightweight local display name.
+- That value is stored in `localStorage`.
+- The stored display name is sent as the `author` field when creating messages.
+- Outgoing messages still hide the visible author label in the UI to match the mockups.
+
+### 2. How should realtime updates work without websockets or server-sent events?
+
+The backend exposes REST endpoints for listing and creating messages, but it does not provide websocket or SSE support.
+
+Assumption and solution:
+
+- The app uses periodic polling instead of realtime push transport.
+- Polling requests use `after=<latest createdAt>` so only newer messages are requested.
+- New messages are merged without duplication.
+- Polling pauses while the user is typing or when they are no longer at the latest messages, so the UI is not disruptive.
