@@ -5,6 +5,8 @@ import type { CreateMessageInput, GetMessagesParams, Message, NormalizedApiError
 
 export const OLDER_MESSAGES_PAGE_SIZE = 20;
 
+const INITIAL_MESSAGES_CURSOR = '9999-12-31T23:59:59.999Z';
+
 type UseMessagesResult = {
   messages: Message[];
   loading: boolean;
@@ -52,6 +54,9 @@ export const useMessages = (
   const limit = params?.limit;
   const after = params?.after;
   const before = params?.before;
+  // The API returns the oldest page by default, so the initial load needs a future `before`
+  // cursor to request the latest page while keeping the response ordered chronologically.
+  const effectiveBefore = after ? undefined : (before ?? INITIAL_MESSAGES_CURSOR);
 
   useEffect(() => {
     if (!enabled) {
@@ -69,7 +74,7 @@ export const useMessages = (
         setError(null);
 
         const nextMessages = await chatApi.getMessages(
-          { limit, after, before },
+          { limit, after, before: effectiveBefore },
           abortController.signal,
         );
 
@@ -100,7 +105,7 @@ export const useMessages = (
     return () => {
       abortController.abort();
     };
-  }, [after, before, enabled, limit]);
+  }, [after, effectiveBefore, enabled, limit]);
 
   return {
     messages,
