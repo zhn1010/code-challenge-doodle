@@ -1,72 +1,30 @@
-# The Challenge (Frontend Engineer)
+# Frontend Engineer Challenge
 
-We would like you to build a simple chat interface in TypeScript that sends and displays messages from all senders. The design should resemble the example below:
+This repository contains a React + TypeScript implementation of the Doodle frontend chat challenge.
 
-<img src="chat.png" width="400" alt="chat" />
+The goal of the solution was to keep the codebase small and readable while still handling the non-trivial parts of the exercise deliberately:
 
-The assets and additional documentation are available in the **assets** folder.
+- loading the latest messages first even though the backend default ordering is chronological
+- supporting message creation with a required `author` field that is not exposed in the final mockup
+- loading older history without breaking scroll position
+- refreshing new messages without websocket or SSE support
 
-## Overview
+<img src="chat.png" width="400" alt="chat preview" />
 
-Your task is to implement the frontend for a chat application. The backend API, which handles message storage and retrieval, has been shared as another repository.
+## What Is Implemented
 
-**For the backend implementation details and setup instructions, please refer to the [Frontend Challenge Chat API repository](https://github.com/DoodleScheduling/frontend-challenge-chat-api)**.
+- responsive chat layout based on the provided assets
+- initial message loading with loading, empty, and error states
+- local display-name flow backed by `localStorage`
+- sending new messages
+- loading older messages on demand
+- polling for newly created messages
+- keyboard and focus handling for accessibility
+- mobile-safe composer and long-message handling
 
-### Frontend challenge Chat API Details
+## Run Locally
 
-- **Authentication:** All message related endpoints require a Bearer token.
-- **Endpoints:**
-  - **GET /api/v1/messages:** Retrieves messages in chronological order, with `before` and `after` pagination support.
-  - **POST /api/v1/messages:** Creates a new chat message.
-- **Example cURL Commands after you run it locally:**
-
-  **List all messages:**
-
-  ```shell script
-  curl http://localhost:3000/api/v1/messages \
-    -H "Authorization: Bearer super-secret-doodle-token"
-  ```
-
-  **List 10 messages after a specific timestamp:**
-
-  ```shell script
-  curl "http://localhost:3000/api/v1/messages?after=2023-01-01T00:00:00.000Z&limit=10" \
-    -H "Authorization: Bearer super-secret-doodle-token"
-  ```
-
-  **Send a message:**
-
-  ```shell script
-  curl -X POST http://localhost:3000/api/v1/messages \
-    -H "Authorization: Bearer super-secret-doodle-token" \
-    -H "Content-Type: application/json" \
-    -d '{"message": "Hello world", "author": "John Doe"}'
-  ```
-
-## Challenge Requirements
-
-- **Time Commitment:** Spend 4 to 6 hours on the challenge over the course of one week.
-- **Technology:** Build the interface using React and TypeScript. Feel free to use frameworks like Next.js if desired.
-- **Responsiveness:** The interface must be responsive and work smoothly on commonly used browsers and mobile devices.
-- **Code Quality:** Maintain clear code readability, commit often with useful messages, and prioritize performance and accessibility.
-
-## What We’re Looking For
-
-- **Code Readability and Clean Architecture**
-- **Commit Quality:** Frequent, descriptive commits.
-- **Performance:** Fast load times and efficient rendering for mobile devices.
-- **Accessibility:** User friendly design that is accessible to everyone.
-- **Design Attention:** We are not looking for pixel perfect results, but we love attention to detail.
-
-## Submission
-
-Once completed, send an email with a link to your repository to `code-challenge@doodle.com` with the subject `FE-<yourname>`. For example, if your name is "Paul Smith", the subject should be `FE-Paul Smith`.
-
-We will review your submission within one week although sometimes it might take a bit longer.
-
-Good luck and happy coding!
-
-## Local Frontend Setup
+The frontend expects the provided chat API to run separately on `http://localhost:3000`.
 
 From the `frontend-engineer` directory:
 
@@ -75,9 +33,7 @@ pnpm install
 pnpm run dev
 ```
 
-The frontend dev server will start on `http://localhost:5173` by default.
-
-The chat API is expected to run separately on `http://localhost:3000`.
+The Vite dev server starts on `http://localhost:5173`.
 
 ## Environment Variables
 
@@ -101,42 +57,117 @@ pnpm run format:check
 pnpm run check
 ```
 
-## Implemented Behavior
+## Technical Decisions
 
-- Loads the latest page of messages first, then renders them oldest-to-newest.
-- Prompts once for a local display name and stores it in `localStorage`.
-- Sends new messages without refetching the whole thread.
-- Supports loading older history with a `Load older messages` button.
-- Polls for newer messages only while the user is at the latest messages and not typing.
-- Includes loading, empty, error, and older-loading states.
+### Stack
 
-## Notes
+- `Vite + React + TypeScript` keeps the setup lightweight and fast for a challenge-sized app.
+- The codebase is organized by feature responsibility rather than around a large app-wide state abstraction.
 
-- The provided backend returns the default message list in ascending order. To show the newest page first while preserving chronological display, the frontend requests the initial page with a future `before` cursor.
-- Outgoing messages are inferred by matching the stored local author name against the fetched `author` field.
+### Initial Message Loading
+
+The provided backend returns the default `GET /api/v1/messages` list in chronological order. If the frontend requests only `limit=3`, the API returns the oldest three messages, not the newest three.
+
+To show the latest page first while still rendering messages oldest-to-newest in the UI, the initial request uses a future `before` cursor. This keeps the UI chronological without requiring a second reorder pass in the view.
+
+### Local Identity
+
+The backend requires an `author` field on `POST /messages`, but the polished mockups do not show an author label on outgoing messages.
+
+The chosen approach is:
+
+- ask once for a lightweight local display name
+- persist it in `localStorage`
+- send it as the API `author`
+- infer outgoing messages by comparing the fetched author against the stored local author
+- keep the outgoing author label hidden in the UI to match the design
+
+This keeps the API contract intact without adding a permanent author input to the composer.
+
+### Refresh Strategy
+
+The backend does not expose websocket or server-sent event support, so realtime-like updates are implemented with polling.
+
+Polling uses `after=<latest createdAt>` and is deliberately conservative:
+
+- only newer messages are requested
+- new messages are merged without duplication
+- polling pauses while the user is typing
+- polling also pauses when the user is no longer at the latest messages
+
+This avoids interrupting the user while still keeping the conversation reasonably fresh.
+
+### Sending Messages
+
+After a successful `POST`, the frontend appends the created message locally instead of refetching the entire thread. The backend already returns the created message, so an immediate follow-up fetch would add cost without improving correctness.
+
+### Older History
+
+Older messages are loaded with `before=<oldest createdAt>`. When older items are prepended, the scroll position is restored so the viewport does not jump.
+
+## Architecture
+
+The current structure is intentionally small:
+
+- `src/components/`
+  Presentational UI components such as the composer, message list, skeletons, and state cards.
+- `src/features/chat/api.ts`
+  Typed API client and error normalization.
+- `src/features/chat/hooks/`
+  Focused chat hooks for fetching, sending, polling, history loading, conversation state, and scroll behavior.
+- `src/features/chat/use-chat-shell.ts`
+  Screen-level orchestration for the chat shell.
+- `src/lib/`
+  App configuration and storage helpers.
+
+The main separation is:
+
+- reusable feature hooks in `features/chat/hooks`
+- presentational rendering in `components`
+- chat-screen composition in `use-chat-shell`
 
 ## Assumptions for Ambiguous Parts
 
-Two parts of the challenge were not fully specified in the provided materials, so the frontend makes these assumptions:
-
 ### 1. Which user name should be sent when posting messages?
 
-The mockups do not show a permanent author field for outgoing messages, but the backend requires an `author` value on `POST /api/v1/messages`.
+The challenge mockups do not show a visible author field for outgoing messages, but the backend requires `author` on creation.
 
 Assumption and solution:
 
-- The app asks once for a lightweight local display name.
-- That value is stored in `localStorage`.
-- The stored display name is sent as the `author` field when creating messages.
-- Outgoing messages still hide the visible author label in the UI to match the mockups.
+- the app stores a lightweight local display name
+- that stored value is used as the API `author`
+- outgoing messages hide the author label in the rendered UI
 
-### 2. How should realtime updates work without websockets or server-sent events?
+### 2. How should realtime updates work without websockets or SSE?
 
-The backend exposes REST endpoints for listing and creating messages, but it does not provide websocket or SSE support.
+The backend only exposes REST endpoints for listing and creating messages.
 
 Assumption and solution:
 
-- The app uses periodic polling instead of realtime push transport.
-- Polling requests use `after=<latest createdAt>` so only newer messages are requested.
-- New messages are merged without duplication.
-- Polling pauses while the user is typing or when they are no longer at the latest messages, so the UI is not disruptive.
+- periodic polling is used instead of push transport
+- polling requests use the `after` cursor
+- polling is paused while the user is typing or reading older messages
+
+## Accessibility and UX Notes
+
+- the composer and identity prompt are keyboard accessible
+- focus moves intentionally between the identity prompt and the composer
+- loading, sending, and error states are exposed accessibly
+- the sticky composer respects mobile safe-area insets
+- long message content is wrapped safely without breaking the layout
+
+## Verification
+
+The main validation commands used during implementation were:
+
+```bash
+pnpm run check
+pnpm run build
+```
+
+## What I Would Improve Next
+
+Given more time, the next improvements would be:
+
+- add automated tests around pagination, polling, and scroll restoration
+- add lightweight visual regression coverage against the provided assets
