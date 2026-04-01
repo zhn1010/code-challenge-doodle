@@ -123,7 +123,7 @@ export const useChatConversation = ({
     }
 
     setOlderMessages((currentMessages) => mergeMessages(nextOlderMessages, currentMessages));
-    setHasMoreOlderMessages(nextOlderMessages.length >= OLDER_MESSAGES_PAGE_SIZE);
+    setHasMoreOlderMessages(nextOlderMessages.length === OLDER_MESSAGES_PAGE_SIZE);
   };
 
   return {
