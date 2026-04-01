@@ -74,7 +74,7 @@ export const useChatConversation = ({
   const visibleMessages = mergeMessages(olderMessages, messages, polledMessages, sentMessages);
   const latestMessageCreatedAt = visibleMessages[visibleMessages.length - 1]?.createdAt;
   const canLoadOlder =
-    (hasMoreOlderMessages ?? messages.length >= INITIAL_MESSAGES_PAGE_SIZE) &&
+    (hasMoreOlderMessages ?? messages.length === INITIAL_MESSAGES_PAGE_SIZE) &&
     !loading &&
     !loadingOlder &&
     visibleMessages.length > 0;
