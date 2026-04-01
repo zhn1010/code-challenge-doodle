@@ -45,8 +45,6 @@ export const usePollNewMessages = ({
       return;
     }
 
-    let closed = false;
-
     const pollMessages = async () => {
       if (pollingRef.current) {
         return;
@@ -58,10 +56,6 @@ export const usePollNewMessages = ({
 
       try {
         const nextMessages = await chatApi.getMessages({ after }, abortController.signal);
-
-        if (closed) {
-          return;
-        }
 
         setError(null);
 
@@ -88,7 +82,6 @@ export const usePollNewMessages = ({
     }, intervalMs);
 
     return () => {
-      closed = true;
       window.clearInterval(intervalId);
       abortControllerRef.current?.abort();
       pollingRef.current = false;
