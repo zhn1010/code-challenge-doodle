@@ -39,6 +39,7 @@ export const useChatShell = (): UseChatShellResult => {
   const authorInputRef = useRef<HTMLInputElement>(null);
   const composerInputRef = useRef<HTMLInputElement>(null);
   const previousAuthorPromptVisible = useRef(!hasAuthor);
+  const shouldFocusComposerAfterSend = useRef(false);
   const [authorDraft, setAuthorDraft] = useState(author);
   const [authorError, setAuthorError] = useState<string | null>(null);
   const [composerValue, setComposerValue] = useState('');
@@ -90,6 +91,15 @@ export const useChatShell = (): UseChatShellResult => {
     previousAuthorPromptVisible.current = false;
   }, [hasAuthor]);
 
+  useEffect(() => {
+    if (sending || !shouldFocusComposerAfterSend.current) {
+      return;
+    }
+
+    composerInputRef.current?.focus();
+    shouldFocusComposerAfterSend.current = false;
+  }, [sending]);
+
   const onAuthorSubmit = (event: SyntheticEvent<HTMLFormElement, SubmitEvent>) => {
     event.preventDefault();
 
@@ -113,8 +123,8 @@ export const useChatShell = (): UseChatShellResult => {
 
     try {
       await sendMessage(trimmedComposerValue);
+      shouldFocusComposerAfterSend.current = true;
       setComposerValue('');
-      composerInputRef.current?.focus();
     } catch (caughtError) {
       if (caughtError instanceof DOMException && caughtError.name === 'AbortError') {
         return;
