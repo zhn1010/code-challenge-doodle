@@ -69,7 +69,6 @@ export const useChatShell = (): UseChatShellResult => {
     hasError: Boolean(loadErrorMessage),
     loading,
     messageCount: messageItems.length,
-    hasAppliedInitialScrollRef: scroll.hasAppliedInitialScrollRef,
     messageListRef: scroll.messageListRef,
     pendingScrollRestoreRef: scroll.pendingScrollRestoreRef,
     pendingScrollToLatestRef: scroll.pendingScrollToLatestRef,

@@ -15,7 +15,6 @@ const isNearBottom = (container: HTMLDivElement | null): boolean => {
 };
 
 export type ChatScrollState = {
-  hasAppliedInitialScrollRef: RefObject<boolean>;
   isAtLatest: boolean;
   messageListRef: RefObject<HTMLDivElement | null>;
   onMessageListScroll: () => void;
@@ -33,7 +32,6 @@ type UseChatScrollEffectParams = {
   hasError: boolean;
   loading: boolean;
   messageCount: number;
-  hasAppliedInitialScrollRef: RefObject<boolean>;
   messageListRef: RefObject<HTMLDivElement | null>;
   pendingScrollRestoreRef: RefObject<{
     previousScrollHeight: number;
@@ -45,8 +43,7 @@ type UseChatScrollEffectParams = {
 
 export const useChatScrollState = (): ChatScrollState => {
   const messageListRef = useRef<HTMLDivElement>(null);
-  const hasAppliedInitialScrollRef = useRef(false);
-  const pendingScrollToLatestRef = useRef(false);
+  const pendingScrollToLatestRef = useRef(true);
   const pendingScrollRestoreRef = useRef<{
     previousScrollHeight: number;
     previousScrollTop: number;
@@ -54,7 +51,6 @@ export const useChatScrollState = (): ChatScrollState => {
   const [isAtLatest, setIsAtLatest] = useState(true);
 
   return {
-    hasAppliedInitialScrollRef,
     isAtLatest,
     messageListRef,
     onMessageListScroll: () => {
@@ -85,7 +81,6 @@ export const useChatScrollEffect = ({
   hasError,
   loading,
   messageCount,
-  hasAppliedInitialScrollRef,
   messageListRef,
   pendingScrollRestoreRef,
   pendingScrollToLatestRef,
@@ -95,12 +90,6 @@ export const useChatScrollEffect = ({
     const messageListElement = messageListRef.current;
 
     if (!messageListElement || messageCount === 0) {
-      return;
-    }
-
-    if (!hasAppliedInitialScrollRef.current && !loading && !hasError) {
-      messageListElement.scrollTop = messageListElement.scrollHeight;
-      hasAppliedInitialScrollRef.current = true;
       return;
     }
 
@@ -123,7 +112,6 @@ export const useChatScrollEffect = ({
 
     setIsAtLatest(isNearBottom(messageListElement));
   }, [
-    hasAppliedInitialScrollRef,
     hasError,
     loading,
     messageCount,
